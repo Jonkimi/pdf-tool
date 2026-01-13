@@ -66,6 +66,12 @@ This script compresses PDF files using Ghostscript.
     ```
 3.  The compressed PDFs will be saved in the `compressed_pdfs` directory (or the configured `OUTPUT_DIR`).
 
+| 参数 | 屏幕阅读 | 打印用途 |
+| --- | --- | --- |
+| `target_dpi` | 150 | 300 |
+| `threshold` | 1.0 | 1.5 |
+| `image_quality` | 75 | 85 |
+
 ### `label_pdf.py`
 
 This script adds a label with the filename to the top-left corner of the first page of a PDF.

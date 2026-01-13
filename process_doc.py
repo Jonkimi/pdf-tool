@@ -15,6 +15,7 @@ OUTPUT_DIR = Path("./output_pdfs")  # 保存 PDF 文件的输出目录
 TEMP_DIR_BASE = Path("./temp_processing")  # 临时文件处理的根目录
 
 # 图片压缩设置 ("最高级别 web 压缩" 的一种解释)
+ENABLE_IMAGE_COMPRESSION = True  # 是否启用图片压缩开关
 IMAGE_QUALITY = 75  # JPEG 压缩质量 (0-100, 较低=更高压缩/更低质量)
 OPTIMIZE_PNG = True  # 是否优化 PNG 文件 (无损压缩)
 # --- End Configuration ---
@@ -105,6 +106,17 @@ def process_word_document(docx_path, output_pdf_path, temp_dir_base):
     处理单个 Word 文档：解压、压缩图片、重新打包、转换为 PDF。
     """
     print(f"\nProcessing: {docx_path.absolute()}")
+
+    # 如果禁用了图片压缩，直接进行 PDF 转换
+    if not ENABLE_IMAGE_COMPRESSION:
+        print("  Image compression is disabled. Converting original file directly...")
+        try:
+            output_pdf_path.parent.mkdir(parents=True, exist_ok=True)
+            convert(str(docx_path), str(output_pdf_path))
+            print(f"  Successfully created PDF: {output_pdf_path.absolute()}")
+        except Exception as pdf_error:
+            print(f"  ERROR converting {docx_path.name} to PDF: {pdf_error}")
+        return
 
     # 使用唯一的临时目录，并在完成后自动清理
     with tempfile.TemporaryDirectory(
@@ -224,6 +236,7 @@ def main():
     print(f"Input directory:  {INPUT_DIR.resolve()}")
     print(f"Output directory: {OUTPUT_DIR.resolve()}")
     print(f"Temp directory:   {TEMP_DIR_BASE.resolve()}")
+    print(f"Compress Images:  {ENABLE_IMAGE_COMPRESSION}")
     print(f"JPEG Quality:     {IMAGE_QUALITY}")
     print(f"Optimize PNGs:    {OPTIMIZE_PNG}")
     print("-" * 30)

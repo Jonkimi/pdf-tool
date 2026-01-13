@@ -1,6 +1,8 @@
+import os
 import platform
 import shutil
 import subprocess
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 # --- 配置 ---
@@ -122,17 +124,17 @@ def compress_pdf(input_pdf_path, output_pdf_path, gs_executable, level, target_d
         "-dSubsetFonts=true",  # 只嵌入用到的字符
         "-dCompressFonts=true",
         # === PDF 优化（补充）===
-        "-dCompressStreams=true", # 启用流压缩（1.5 核心）
-        "-dCompressPages=true", # 压缩页面描述
+        "-dCompressStreams=true",  # 启用流压缩（1.5 核心）
+        "-dCompressPages=true",  # 压缩页面描述
         "-dDetectDuplicateImages=true",  # 去重复图片
         "-dOptimize=true",  # 优化 PDF 结构
-        "-dUseFlateCompression=true", # 启用 Flate 无损压缩
+        "-dUseFlateCompression=true",  # 启用 Flate 无损压缩
         # === 网页优化 ===
-        "-dFastWebView=true", # 线性化，支持边下边看
+        "-dFastWebView=true",  # 线性化，支持边下边看
         # --- 移除: -dPDFSETTINGS=... ---
         "-dNOPAUSE",
         "-dBATCH",
-        # "-dQUIET", # 可以取消注释以查看更少的 GS 输出
+        "-dQUIET",  # 可以取消注释以查看更少的 GS 输出
         f"-sOutputFile={str(output_pdf_path)}",
         str(input_pdf_path),
     ]
@@ -182,6 +184,11 @@ def compress_pdf(input_pdf_path, output_pdf_path, gs_executable, level, target_d
         return False
 
 
+def _compress_pdf_worker(args):
+    """多进程工作辅助函数。"""
+    return compress_pdf(*args)
+
+
 def main():
     """主函数，执行整个流程。"""
     print("开始 PDF 压缩流程...")
@@ -212,35 +219,61 @@ def main():
     print(f"找到 {len(pdf_files)} 个 PDF 文件，开始处理...")
     print("-" * 30)
 
-    success_count = 0
-    fail_count = 0
+    # success_count = 0
+    # fail_count = 0
 
+    # for pdf_path in pdf_files:
+    #     print(f"\n处理文件: {pdf_path.relative_to(INPUT_DIR)}")
+
+    #     # 计算输出 PDF 文件的路径，保留相对结构
+    #     relative_path = pdf_path.relative_to(INPUT_DIR)
+    #     output_pdf = OUTPUT_DIR / relative_path
+
+    #     # 调用压缩函数
+    #     if compress_pdf(
+    #         pdf_path,
+    #         output_pdf,
+    #         gs_exe,
+    #         COMPRESSION_LEVEL,
+    #         TARGET_DPI,
+    #         DOWNSAMPLE_THRESHOLD,
+    #         IMAGE_QUALITY,
+    #     ):
+    #         success_count += 1
+    #     else:
+    #         fail_count += 1
+    # 准备任务参数
+    tasks = []
     for pdf_path in pdf_files:
-        print(f"\n处理文件: {pdf_path.relative_to(INPUT_DIR)}")
-
-        # 计算输出 PDF 文件的路径，保留相对结构
         relative_path = pdf_path.relative_to(INPUT_DIR)
         output_pdf = OUTPUT_DIR / relative_path
-
-        # 调用压缩函数
-        if compress_pdf(
-            pdf_path,
-            output_pdf,
-            gs_exe,
-            COMPRESSION_LEVEL,
-            TARGET_DPI,
-            DOWNSAMPLE_THRESHOLD,
-            IMAGE_QUALITY,
-        ):
-            success_count += 1
-        else:
-            fail_count += 1
-
+        tasks.append(
+            (
+                pdf_path,
+                output_pdf,
+                gs_exe,
+                COMPRESSION_LEVEL,
+                TARGET_DPI,
+                DOWNSAMPLE_THRESHOLD,
+                IMAGE_QUALITY,
+            )
+        )
+    num_workers = os.cpu_count()
+    print(f"找到 {len(pdf_files)} 个文件，使用 {num_workers}个核心并行处理...")
     print("-" * 30)
-    print("处理完成。")
-    print(f"成功压缩文件数: {success_count}")
-    print(f"失败文件数: {fail_count}")
-    print("-" * 30)
+
+    # 执行并行任务
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        results = list(executor.map(_compress_pdf_worker, tasks))
+
+        success_count = results.count(True)
+        fail_count = results.count(False)
+
+        print("-" * 30)
+        print("处理完成。")
+        print(f"成功压缩文件数: {success_count}")
+        print(f"失败文件数: {fail_count}")
+        print("-" * 30)
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ OUTPUT_DIR = Path("./output_pdfs")  # 保存 PDF 文件的输出目录
 TEMP_DIR_BASE = Path("./temp_processing")  # 临时文件处理的根目录
 
 # 图片压缩设置 ("最高级别 web 压缩" 的一种解释)
-ENABLE_IMAGE_COMPRESSION = True  # 是否启用图片压缩开关
+ENABLE_IMAGE_COMPRESSION = False  # 是否启用图片压缩开关，关闭让图片只在 pdf 处理阶段被压缩，避免多次压缩导致失真
 IMAGE_QUALITY = 75  # JPEG 压缩质量 (0-100, 较低=更高压缩/更低质量)
 OPTIMIZE_PNG = True  # 是否优化 PNG 文件 (无损压缩)
 # --- End Configuration ---

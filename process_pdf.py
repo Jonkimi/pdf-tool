@@ -15,10 +15,11 @@ OUTPUT_DIR = Path("./compressed_pdfs")  # 保存压缩后 PDF 的输出目录
 # /default  - Ghostscript 的默认设置，通常介于 ebook 和 printer 之间
 COMPRESSION_LEVEL = "/screen"
 # --- 新增：直接 DPI 控制 ---
-TARGET_DPI = 130  # 设置目标图像分辨率 (例如 96, 150, 300)
-DOWNSAMPLE_THRESHOLD = (
-    1.0  # 设置下采样阈值 (1.0 表示只要图像分辨率 > TARGET_DPI 就进行下采样, 1.5 较宽松)
-)
+TARGET_DPI = 144  # 设置目标图像分辨率 (例如 96, 130, 144, 150, 300)
+DOWNSAMPLE_THRESHOLD = 1.1  # 设置下采样阈值 (1.0 表示只要图像分辨率 > TARGET_DPI 就进行下采样, 1.5 较宽松)
+IMAGE_QUALITY = 75  # Add this: 1-100, lower means higher compression
+
+# 如果遇到转换极慢 添加 -dHaveTransparency=false 或者在 Word 导出前就把复杂矢量图转为位图
 
 # Ghostscript 可执行文件的路径
 # 留空 '' 会尝试自动在 PATH 中查找
@@ -59,9 +60,7 @@ def find_ghostscript():
         return None
 
 
-def compress_pdf(
-    input_pdf_path, output_pdf_path, gs_executable, level, target_dpi, threshold
-):
+def compress_pdf(input_pdf_path, output_pdf_path, gs_executable, level, target_dpi, threshold, image_quality=100):
     """使用 Ghostscript 压缩单个 PDF 文件。"""
     print(f"  正在压缩: {input_pdf_path.name} -> {output_pdf_path.name} (使用 {level})")
 
@@ -81,18 +80,55 @@ def compress_pdf(
     cmd = [
         gs_executable,
         "-sDEVICE=pdfwrite",
-        "-dCompatibilityLevel=1.4",
+        "-dCompatibilityLevel=1.5",
         # f"-dPDFSETTINGS={level}",
         # --- 启用并设置 DPI 和阈值 ---
+        # === 彩色图片 ===
         "-dDownsampleColorImages=true",
-        "-dDownsampleGrayImages=true",
-        "-dDownsampleMonoImages=true",
+        "-dColorImageDownsampleType=/Bicubic",  # 添加：更好的缩放算法
         f"-dColorImageResolution={target_dpi}",
-        f"-dGrayImageResolution={target_dpi}",
-        f"-dMonoImageResolution={target_dpi}",
         f"-dColorImageDownsampleThreshold={threshold}",
+        "-dAutoFilterColorImages=false",
+        "-dColorImageFilter=/DCTEncode",
+        "-dEncodeColorImages=true",
+        "-dPassThroughJPEGImages=false",
+        # === 灰度图片 ===
+        "-dDownsampleGrayImages=true",
+        "-dGrayImageDownsampleType=/Bicubic",
+        f"-dGrayImageResolution={target_dpi}",
         f"-dGrayImageDownsampleThreshold={threshold}",
+        "-dAutoFilterGrayImages=false",
+        "-dGrayImageFilter=/DCTEncode",
+        "-dEncodeGrayImages=true",
+        # === 单色图片（特殊处理）===
+        "-dDownsampleMonoImages=true",
+        # "-dMonoImageDownsampleType=/Bicubic",
+        # 单色图片用 /Subsample 更适合（边缘更锐利）
+        "-dMonoImageDownsampleType=/Subsample",  # 而不是 /Bicubic
+        f"-dMonoImageResolution={target_dpi * 2}",  # 单色需要更高 DPI
         f"-dMonoImageDownsampleThreshold={threshold}",
+        # 不要对 Mono 用 DCTEncode！用默认的 CCITTFax 或 Flate
+        "-dMonoImageFilter=/CCITTFaxEncode",
+        "-dEncodeMonoImages=true",
+        # === JPEG 质量 ===
+        f"-dJPEGQ={image_quality}",
+        # === 颜色优化 ===
+        "-sColorConversionStrategy=RGB",
+        "-dConvertCMYKImagesToRGB=true",
+        "-sProcessColorModel=DeviceRGB",
+        "-dOverrideICC=true",
+        # === 字体处理（补充）===
+        "-dEmbedAllFonts=true",
+        "-dSubsetFonts=true",  # 只嵌入用到的字符
+        "-dCompressFonts=true",
+        # === PDF 优化（补充）===
+        "-dCompressStreams=true", # 启用流压缩（1.5 核心）
+        "-dCompressPages=true", # 压缩页面描述
+        "-dDetectDuplicateImages=true",  # 去重复图片
+        "-dOptimize=true",  # 优化 PDF 结构
+        "-dUseFlateCompression=true", # 启用 Flate 无损压缩
+        # === 网页优化 ===
+        "-dFastWebView=true", # 线性化，支持边下边看
         # --- 移除: -dPDFSETTINGS=... ---
         "-dNOPAUSE",
         "-dBATCH",
@@ -121,11 +157,7 @@ def compress_pdf(
             # 可以比较文件大小 (可选)
             original_size = input_pdf_path.stat().st_size
             compressed_size = output_pdf_path.stat().st_size
-            reduction = (
-                (original_size - compressed_size) / original_size * 100
-                if original_size > 0
-                else 0
-            )
+            reduction = (original_size - compressed_size) / original_size * 100 if original_size > 0 else 0
             print(
                 f"     原始大小: {original_size / 1024:.1f} KB, 压缩后: {compressed_size / 1024:.1f} KB ({reduction:.1f}% 减小)"
             )
@@ -143,9 +175,7 @@ def compress_pdf(
             return False
 
     except FileNotFoundError:
-        print(
-            f"错误：无法执行 Ghostscript 命令。确认 '{gs_executable}' 路径正确且可用。"
-        )
+        print(f"错误：无法执行 Ghostscript 命令。确认 '{gs_executable}' 路径正确且可用。")
         return False
     except Exception as e:
         print(f"执行 Ghostscript 时发生意外错误: {e}")
@@ -200,6 +230,7 @@ def main():
             COMPRESSION_LEVEL,
             TARGET_DPI,
             DOWNSAMPLE_THRESHOLD,
+            IMAGE_QUALITY,
         ):
             success_count += 1
         else:

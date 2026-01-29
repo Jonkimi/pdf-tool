@@ -107,6 +107,8 @@
   },
   "options": {
     "quality": "Quality:",
-    "dpi": "DPI:"
+    "dpi": "DPI:",
+    "downsample_threshold": "Downsample Threshold:",
+    "image_quality": "Image Quality:"
   }
 }

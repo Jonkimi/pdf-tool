@@ -312,6 +312,33 @@ class CompressionTab(BaseProcessingTab):
             width=5
         ).pack(side='left')
 
+        # Downsample threshold
+        self.threshold_label = ttk.Label(self.options_frame, text=self._get_text('options.downsample_threshold'))
+        self.threshold_label.pack(side='left', padx=(20, 5))
+        self.threshold_var = tk.DoubleVar(
+            value=self.app_controller.get_settings().get('downsample_threshold', 1.1)
+        )
+        ttk.Spinbox(
+            self.options_frame,
+            from_=1.0, to=3.0,
+            increment=0.1,
+            textvariable=self.threshold_var,
+            width=5
+        ).pack(side='left')
+
+        # Image quality
+        self.image_quality_label = ttk.Label(self.options_frame, text=self._get_text('options.image_quality'))
+        self.image_quality_label.pack(side='left', padx=(20, 5))
+        self.image_quality_var = tk.IntVar(
+            value=self.app_controller.get_settings().get('image_quality', 75)
+        )
+        ttk.Spinbox(
+            self.options_frame,
+            from_=1, to=100,
+            textvariable=self.image_quality_var,
+            width=5
+        ).pack(side='left')
+
     def _start_processing(self):
         """Start PDF compression."""
         files = self.file_list.get_files()
@@ -334,6 +361,8 @@ class CompressionTab(BaseProcessingTab):
         settings = self.app_controller.get_settings()
         settings['compression_quality'] = self.quality_var.get()
         settings['target_dpi'] = self.dpi_var.get()
+        settings['downsample_threshold'] = self.threshold_var.get()
+        settings['image_quality'] = self.image_quality_var.get()
 
         # Set callbacks
         self.app_controller.set_callbacks(
@@ -354,6 +383,8 @@ class CompressionTab(BaseProcessingTab):
         self.options_frame.configure(text=self._get_text('groups.compression_options'))
         self.quality_preset_label.configure(text=self._get_text('labels.compression_quality'))
         self.dpi_label.configure(text=self._get_text('options.dpi'))
+        self.threshold_label.configure(text=self._get_text('options.downsample_threshold'))
+        self.image_quality_label.configure(text=self._get_text('options.image_quality'))
 
 
 class LabelingTab(BaseProcessingTab):

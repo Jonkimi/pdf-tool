@@ -96,7 +96,8 @@ class CompressionEngine:
                     str(output_path),
                     quality_preset=settings.get('compression_quality', 'ebook'),
                     target_dpi=settings.get('target_dpi', 144),
-                    image_quality=settings.get('image_quality', 75)
+                    image_quality=settings.get('image_quality', 75),
+                    downsample_threshold=settings.get('downsample_threshold', 1.1)
                 )
                 
                 result.success = success

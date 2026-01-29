@@ -60,23 +60,25 @@ class GhostscriptWrapper:
             self.logger.warning(f"Failed to get GS version: {e}")
             return "Unknown"
 
-    def compress_pdf(self, input_path: str, output_path: str, 
-                    quality_preset: str = "ebook", 
+    def compress_pdf(self, input_path: str, output_path: str,
+                    quality_preset: str = "ebook",
                     target_dpi: int = 144,
-                    image_quality: int = 75) -> bool:
+                    image_quality: int = 75,
+                    downsample_threshold: float = 1.1) -> bool:
         """
         Compress PDF using Ghostscript.
-        
+
         Args:
             input_path: Input PDF path
             output_path: Output PDF path
             quality_preset: 'screen', 'ebook', 'printer', 'prepress' (Not used directly in this implementation but kept for interface compatibility)
             target_dpi: Target DPI for downsampling
             image_quality: JPEG quality (1-100)
-            
+            downsample_threshold: Downsample threshold (>=1.0, images with resolution > target_dpi * threshold will be downsampled)
+
         Returns:
             bool: True if successful
-            
+
         Raises:
             DependencyError: If Ghostscript is not found
             ProcessingError: If compression fails
@@ -84,18 +86,18 @@ class GhostscriptWrapper:
         """
         if not self.gs_path:
             raise DependencyError("Ghostscript not found", dependency="ghostscript")
-            
+
         input_path = Path(input_path)
         output_path = Path(output_path)
-        
+
         if not input_path.exists():
             raise FileSystemError("Input file not found", file_path=str(input_path))
-            
+
         # Ensure output directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Determine downsample threshold (usually 1.0 or slightly higher)
-        threshold = 1.0
+
+        # Use provided threshold
+        threshold = downsample_threshold
         
         # Build command based on logic in process_pdf.py but simplified/cleaned
         cmd = [

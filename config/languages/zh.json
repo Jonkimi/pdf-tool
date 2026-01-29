@@ -107,6 +107,8 @@
   },
   "options": {
     "quality": "质量:",
-    "dpi": "DPI:"
+    "dpi": "DPI:",
+    "downsample_threshold": "下采样阈值:",
+    "image_quality": "图片质量:"
   }
 }

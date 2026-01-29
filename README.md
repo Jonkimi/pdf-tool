@@ -26,18 +26,22 @@ This repository contains a collection of Python scripts for processing and compr
 
 *   Python 3.x
 *   Ghostscript: Must be installed and accessible from the command line.
-*   Required Python packages can be installed using pip:
+*   Required Python packages can be installed using [uv](https://astral.sh/uv) (recommended) or pip:
     ```bash
-    pip install docx2pdf PyPDF2 reportlab pillow
+    uv pip install docx2pdf pypdf reportlab pillow python-docx PyMuPDF
+    # or
+    pip install docx2pdf pypdf reportlab pillow python-docx PyMuPDF
     ```
 
 ## 备忘
 
 *   Python 3.x
 *   Ghostscript: 必须已安装并在命令行中可用。
-*   所需的 Python 包可以使用 pip 安装：
+*   所需的 Python 包可以使用 [uv](https://astral.sh/uv) (推荐) 或 pip 安装：
     ```bash
-    pip install docx2pdf PyPDF2 reportlab pillow
+    uv pip install docx2pdf pypdf reportlab pillow python-docx PyMuPDF
+    # 或
+    pip install docx2pdf pypdf reportlab pillow python-docx PyMuPDF
     ```
 
 ## Usage
@@ -119,6 +123,58 @@ This script adds a label with the filename to the top-left corner of the first p
     python label_pdf.py
     ```
 3.  标注后的 PDF 将保存在 `labeled_pdfs` 目录（或配置的 `OUTPUT_DIR`）中。
+
+## Development
+
+### Running from source
+
+It is recommended to use [uv](https://astral.sh/uv) for dependency management:
+
+```bash
+# Install dependencies and create virtual environment
+uv sync
+
+# Run the application
+uv run main.py
+```
+
+Or using standard pip:
+
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+### Building and Packaging
+
+The application can be packaged into a standalone executable for different platforms using PyInstaller.
+
+#### Prerequisites
+
+Install the development dependencies:
+
+```bash
+uv pip install pyinstaller
+# or
+pip install pyinstaller
+```
+
+#### Local Build
+
+To build for your current platform, run:
+
+```bash
+cd packaging
+uv run build.py
+# or
+python build.py
+```
+
+The resulting executable or app bundle will be located in `packaging/dist/`.
+
+#### Multi-platform Packaging
+
+Multi-platform builds are handled automatically via GitHub Actions whenever a new tag starting with `v` is pushed.
 
 ## License
 

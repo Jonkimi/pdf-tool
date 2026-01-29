@@ -1,0 +1,81 @@
+name: Package Application
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: DocumentProcessor-windows
+            executable_path: packaging/dist/DocumentProcessor.exe
+          - os: macos-latest
+            artifact_name: DocumentProcessor-macos
+            executable_path: packaging/dist/DocumentProcessor.app
+          - os: ubuntu-latest
+            artifact_name: DocumentProcessor-linux
+            executable_path: packaging/dist/DocumentProcessor
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system .
+          uv pip install --system pyinstaller
+
+      - name: Build with PyInstaller
+        shell: bash
+        run: |
+          cd packaging
+          pyinstaller --noconfirm --clean DocumentProcessor.spec
+
+      - name: Package macOS App (Zip)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd packaging/dist
+          zip -r DocumentProcessor-macos.zip DocumentProcessor.app
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            ${{ matrix.os == 'macos-latest' && 'packaging/dist/DocumentProcessor-macos.zip' || matrix.executable_path }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/DocumentProcessor-windows/DocumentProcessor.exe
+            artifacts/DocumentProcessor-macos/DocumentProcessor-macos.zip
+            artifacts/DocumentProcessor-linux/DocumentProcessor
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

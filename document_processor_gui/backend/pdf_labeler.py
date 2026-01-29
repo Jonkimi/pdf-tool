@@ -98,7 +98,7 @@ class PDFLabeler:
             self.logger.error(f"Failed to label PDF: {e}")
             raise ProcessingError(f"Labeling failed: {str(e)}", file_path=str(input_path))
 
-    def generate_preview(self, input_path: str, text: str, 
+    def generate_preview(self, input_path: str, text: str,
                         position: str = "footer",
                         font_size: int = 10,
                         color: str = "#FF0000",
@@ -106,59 +106,59 @@ class PDFLabeler:
                         page_num: int = 0) -> bytes:
         """
         Generate a preview image of the labeled page.
-        
+
         Returns:
             bytes: PNG image data
         """
         input_path = Path(input_path)
         if not input_path.exists():
             raise ValidationError("Input file not found", file_path=str(input_path))
-            
+
         try:
             doc = fitz.open(input_path)
             if page_num >= len(doc):
                 page_num = 0
-            
+
             page = doc[page_num]
             rect = page.rect
             rgb_color = self._hex_to_rgb(color)
             fontfile = self.font_path # Use instance font for preview simplicity unless passed
-            
+
             insert_args = {
                 "fontsize": font_size,
                 "color": rgb_color,
                 "fill_opacity": opacity
             }
-             
+
             if fontfile and Path(fontfile).exists():
                 insert_args["fontfile"] = fontfile
                 insert_args["fontname"] = "custom"
             else:
                 if not text.isascii():
-                    insert_args["fontname"] = "china-s" 
+                    insert_args["fontname"] = "china-s"
                 else:
                     insert_args["fontname"] = "helv"
 
             x, y, align = self._calculate_coordinates(rect, position, font_size)
-            
+
             try:
                 text_len = fitz.get_text_length(text, fontname=insert_args.get("fontname", "helv"), fontsize=font_size)
             except:
                 text_len = len(text) * font_size * 0.5
-            
+
             if align == 1: # Center
                 x -= text_len / 2
             elif align == 2: # Right
                 x -= text_len
-                
+
             page.insert_text((x, y), text, **insert_args)
-            
+
             # Render page to image
             pix = page.get_pixmap(alpha=False)
             img_data = pix.tobytes("png")
             doc.close()
             return img_data
-            
+
         except Exception as e:
             self.logger.error(f"Preview generation failed: {e}")
             raise ProcessingError(f"Preview failed: {str(e)}", file_path=str(input_path))

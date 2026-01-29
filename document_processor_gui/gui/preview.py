@@ -53,6 +53,7 @@ class PreviewPanel(ttk.Frame):
         self._zoom_level = 1.0
         self._image_ref: Optional["ImageTk.PhotoImage"] = None
         self._pdf_doc: Optional["fitz.Document"] = None
+        self._on_page_render: Optional[Callable[[int], Optional[bytes]]] = None
 
         self._setup_ui()
 
@@ -188,12 +189,14 @@ class PreviewPanel(ttk.Frame):
             self._show_placeholder(f"Cannot preview: {e}")
             return False
 
-    def load_from_bytes(self, data: bytes, file_type: str = "png") -> bool:
+    def load_from_bytes(self, data: bytes, file_type: str = "png",
+                        total_pages: int = 1) -> bool:
         """Load preview from image bytes.
 
         Args:
             data: Image data bytes
             file_type: Image format type
+            total_pages: Total number of pages (for pagination controls)
 
         Returns:
             True if loaded successfully
@@ -203,9 +206,19 @@ class PreviewPanel(ttk.Frame):
             return False
 
         try:
+            # Close any open PDF document since we're switching to bytes mode
+            self._close_document()
+
             # Load image from bytes
             image = Image.open(io.BytesIO(data))
             self._display_image(image)
+
+            # Set pagination state
+            self._current_page = 0
+            self._total_pages = total_pages
+            self.page_label.configure(text=f"1 / {total_pages}")
+            self._update_controls_state(total_pages > 0)
+
             return True
 
         except Exception as e:
@@ -214,8 +227,25 @@ class PreviewPanel(ttk.Frame):
             return False
 
     def _render_current_page(self):
-        """Render the current page of the loaded PDF."""
-        if not self._pdf_doc or not HAS_FITZ or not HAS_PIL:
+        """Render the current page of the loaded PDF or via callback."""
+        if not HAS_PIL:
+            return
+
+        # Try callback-based rendering first (for PNG preview mode)
+        if self._on_page_render:
+            try:
+                data = self._on_page_render(self._current_page)
+                if data:
+                    image = Image.open(io.BytesIO(data))
+                    self._display_image(image)
+                    self.page_label.configure(
+                        text=f"{self._current_page + 1} / {self._total_pages}")
+                    return
+            except Exception as e:
+                self.logger.error(f"Failed to render page via callback: {e}")
+
+        # Fall back to PDF document rendering
+        if not self._pdf_doc or not HAS_FITZ:
             return
 
         try:
@@ -309,7 +339,7 @@ class PreviewPanel(ttk.Frame):
         """Update after zoom change."""
         self.zoom_label.configure(text=f"{int(self._zoom_level * 100)}%")
 
-        if self._pdf_doc:
+        if self._pdf_doc or self._on_page_render:
             self._render_current_page()
 
         if self.on_zoom_changed:
@@ -332,6 +362,16 @@ class PreviewPanel(ttk.Frame):
         """
         return self._zoom_level
 
+    def set_page_render_callback(self, callback: Optional[Callable[[int], Optional[bytes]]]):
+        """Set callback for rendering pages by page number.
+
+        When set, pagination uses this callback instead of a loaded PDF document.
+
+        Args:
+            callback: Function that takes page_num (0-indexed) and returns PNG bytes
+        """
+        self._on_page_render = callback
+
     def clear(self):
         """Clear the preview."""
         self._close_document()
@@ -350,6 +390,7 @@ class PreviewPanel(ttk.Frame):
         self._current_page = 0
         self._total_pages = 0
         self._image_ref = None
+        self._on_page_render = None
 
     def destroy(self):
         """Clean up resources when widget is destroyed."""

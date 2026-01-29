@@ -122,7 +122,7 @@ class LabelingEngine:
         result.processing_time = time.time() - start_time
         return result
         
-    def generate_preview(self, input_path: str, settings: Dict[str, Any]) -> bytes:
+    def generate_preview(self, input_path: str, settings: Dict[str, Any], page_num: int = 0) -> bytes:
         """Generate preview for labeling."""
         input_path = Path(input_path)
         label_text = settings.get('label_text')
@@ -131,12 +131,13 @@ class LabelingEngine:
                 label_text = str(input_path)
             else:
                 label_text = input_path.name
-                
+
         return self.pdf_labeler.generate_preview(
             str(input_path),
             text=label_text,
             position=settings.get('label_position', 'header'),
             font_size=settings.get('label_font_size', 10),
             color=settings.get('label_font_color', '#FF0000'),
-            opacity=settings.get('label_transparency', 1.0)
+            opacity=settings.get('label_transparency', 1.0),
+            page_num=page_num
         )

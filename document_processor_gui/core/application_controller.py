@@ -303,12 +303,14 @@ class ApplicationController:
         return True
 
     def generate_label_preview(self, input_path: str,
-                               settings: Optional[Dict[str, Any]] = None) -> Optional[bytes]:
+                               settings: Optional[Dict[str, Any]] = None,
+                               page_num: int = 0) -> Optional[bytes]:
         """Generate a preview of label placement.
 
         Args:
             input_path: Path to input PDF
             settings: Optional settings override
+            page_num: Page number to preview (0-indexed)
 
         Returns:
             PNG image bytes or None if preview generation fails
@@ -319,12 +321,31 @@ class ApplicationController:
             if settings is None:
                 settings = self.get_settings()
 
-            return self._labeling_engine.generate_preview(input_path, settings)
+            return self._labeling_engine.generate_preview(input_path, settings, page_num=page_num)
         except Exception as e:
             self.logger.error(f"Failed to generate preview: {e}")
             if self._error_callback:
                 self._error_callback(str(e))
             return None
+
+    def get_pdf_page_count(self, input_path: str) -> int:
+        """Get the total number of pages in a PDF file.
+
+        Args:
+            input_path: Path to PDF file
+
+        Returns:
+            Number of pages, or 0 if the file cannot be read
+        """
+        try:
+            import fitz
+            doc = fitz.open(input_path)
+            count = len(doc)
+            doc.close()
+            return count
+        except Exception as e:
+            self.logger.error(f"Failed to get page count: {e}")
+            return 0
 
     def validate_files(self, files: List[str], file_type: str = "any") -> Dict[str, Any]:
         """Validate a list of files.

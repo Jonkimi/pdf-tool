@@ -522,7 +522,14 @@ class LabelingTab(BaseProcessingTab):
             )
             return
 
-        # Generate preview for first file
+        file_path = files[0]
+
+        # Use selected file if available, otherwise use first file
+        selected = self.file_list.get_selected_files()
+        if selected:
+            file_path = selected[0]
+
+        # Generate preview settings
         settings = {
             'label_position': self.position_var.get(),
             'label_font_size': self.font_size_var.get(),
@@ -530,9 +537,21 @@ class LabelingTab(BaseProcessingTab):
             'label_transparency': self.app_controller.get_settings().get('label_transparency', 1.0)
         }
 
-        preview_bytes = self.app_controller.generate_label_preview(files[0], settings)
+        # Get total pages
+        total_pages = self.app_controller.get_pdf_page_count(file_path)
+        if total_pages == 0:
+            return
+
+        # Generate first page preview
+        preview_bytes = self.app_controller.generate_label_preview(file_path, settings, page_num=0)
         if preview_bytes:
-            self.preview_panel.load_from_bytes(preview_bytes, 'png')
+            # Set callback for page rendering (closure captures file_path and settings)
+            def render_page(page_num: int):
+                return self.app_controller.generate_label_preview(file_path, settings, page_num=page_num)
+
+            # Order matters: load_from_bytes() clears callback, so set callback after
+            self.preview_panel.load_from_bytes(preview_bytes, 'png', total_pages=total_pages)
+            self.preview_panel.set_page_render_callback(render_page)
 
     def _start_processing(self):
         """Start PDF labeling."""

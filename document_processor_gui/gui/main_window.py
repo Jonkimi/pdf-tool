@@ -227,33 +227,8 @@ class ConversionTab(BaseProcessingTab):
 
     def _setup_conversion_options(self):
         """Setup conversion-specific options."""
-        # Options frame
-        self.options_frame = ttk.LabelFrame(self, text=self._get_text('groups.conversion_options'), padding=10)
-        self.options_frame.grid(row=4, column=0, sticky='ew', padx=10, pady=5)
-
-        # Image compression checkbox
-        self.image_compression_var = tk.BooleanVar(
-            value=self.app_controller.get_settings().get('image_compression_enabled', False)
-        )
-        self.image_compression_checkbox = ttk.Checkbutton(
-            self.options_frame,
-            text=self._get_text('labels.image_compression'),
-            variable=self.image_compression_var
-        )
-        self.image_compression_checkbox.pack(side='left', padx=5)
-
-        # Image quality
-        self.quality_label = ttk.Label(self.options_frame, text=self._get_text('options.quality'))
-        self.quality_label.pack(side='left', padx=(20, 5))
-        self.quality_var = tk.IntVar(
-            value=self.app_controller.get_settings().get('image_quality', 75)
-        )
-        ttk.Spinbox(
-            self.options_frame,
-            from_=1, to=100,
-            textvariable=self.quality_var,
-            width=5
-        ).pack(side='left')
+        # No additional options needed for Word to PDF conversion
+        pass
 
     def _start_processing(self):
         """Start Word to PDF conversion."""
@@ -273,10 +248,8 @@ class ConversionTab(BaseProcessingTab):
             )
             return
 
-        # Get settings with UI overrides
+        # Get settings
         settings = self.app_controller.get_settings()
-        settings['image_compression_enabled'] = self.image_compression_var.get()
-        settings['image_quality'] = self.quality_var.get()
 
         # Set callbacks
         self.app_controller.set_callbacks(
@@ -294,9 +267,6 @@ class ConversionTab(BaseProcessingTab):
     def update_translations(self):
         """Update all UI text with current language."""
         super().update_translations()
-        self.options_frame.configure(text=self._get_text('groups.conversion_options'))
-        self.image_compression_checkbox.configure(text=self._get_text('labels.image_compression'))
-        self.quality_label.configure(text=self._get_text('options.quality'))
 
 
 class CompressionTab(BaseProcessingTab):

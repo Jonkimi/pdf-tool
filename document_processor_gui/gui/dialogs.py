@@ -525,29 +525,6 @@ class SettingsDialog(tk.Toplevel):
         quality_combo.grid(row=row, column=1, sticky='w', pady=5, padx=5)
         row += 1
 
-        # Image compression
-        self._vars['image_compression_enabled'] = tk.BooleanVar()
-        ttk.Checkbutton(
-            parent,
-            text=self._get_text('labels.image_compression'),
-            variable=self._vars['image_compression_enabled']
-        ).grid(row=row, column=0, columnspan=2, sticky='w', pady=5)
-        row += 1
-
-        # Image quality
-        ttk.Label(parent, text="Image Quality (1-100):").grid(
-            row=row, column=0, sticky='w', pady=5
-        )
-        self._vars['image_quality'] = tk.IntVar()
-        quality_spin = ttk.Spinbox(
-            parent,
-            from_=1, to=100,
-            textvariable=self._vars['image_quality'],
-            width=10
-        )
-        quality_spin.grid(row=row, column=1, sticky='w', pady=5, padx=5)
-        row += 1
-
         # Max concurrent operations
         ttk.Label(parent, text="Max Concurrent Operations:").grid(
             row=row, column=0, sticky='w', pady=5

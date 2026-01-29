@@ -11,6 +11,7 @@ project_root = os.path.abspath(os.path.join(os.getcwd(), '..'))
 
 added_files = [
     (os.path.join(project_root, 'config'), 'config'),
+    (os.path.join(project_root, 'document_processor_gui', 'resources'), os.path.join('document_processor_gui', 'resources')),
 ]
 
 a = Analysis(
@@ -63,7 +64,7 @@ if sys.platform == 'darwin':
     app = BUNDLE(
         coll,
         name='DocumentProcessor.app',
-        icon=None, # Add icon if available
+        icon=os.path.join(project_root, 'document_processor_gui', 'resources', 'app_icon.icns'),
         bundle_identifier='com.jonkimi.documentprocessor.gui',
     )
 else:

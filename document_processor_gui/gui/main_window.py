@@ -639,6 +639,15 @@ class MainWindow:
         self.root.title(self._get_text('app_title'))
         self.root.minsize(800, 600)
 
+        # Set window icon
+        try:
+            icon_path = Path(__file__).parent.parent / 'resources' / 'app_icon.png'
+            if icon_path.exists():
+                icon = tk.PhotoImage(file=str(icon_path))
+                self.root.iconphoto(True, icon)
+        except Exception as e:
+            self.logger.warning(f"Failed to load app icon: {e}")
+
     def _setup_menu(self):
         """Setup menu bar."""
         menubar = tk.Menu(self.root)

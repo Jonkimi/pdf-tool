@@ -6,7 +6,7 @@ import logging
 from typing import Optional, Dict, Any, List, TYPE_CHECKING
 from pathlib import Path
 
-from .components import FileSelector, FileListWidget, OutputSelector, FileButtonBar
+from .components import FileSelector, FileListWidget, OutputSelector, FileButtonBar, HelpIcon
 from .dialogs import ProgressDialog, ResultsDialog, ErrorDialog, SettingsDialog
 from .preview import PreviewPanel
 
@@ -284,9 +284,9 @@ class CompressionTab(BaseProcessingTab):
         self.options_frame = ttk.LabelFrame(self, text=self._get_text('groups.compression_options'), padding=10)
         self.options_frame.grid(row=4, column=0, sticky='ew', padx=10, pady=5)
 
-        # Quality preset
-        self.quality_preset_label = ttk.Label(self.options_frame, text=self._get_text('labels.compression_quality'))
-        self.quality_preset_label.pack(side='left', padx=5)
+        # Compression level preset
+        self.level_preset_label = ttk.Label(self.options_frame, text=self._get_text('labels.compression_level'))
+        self.level_preset_label.pack(side='left', padx=5)
         self.quality_var = tk.StringVar(
             value=self.app_controller.get_settings().get('compression_quality', 'ebook')
         )
@@ -298,6 +298,8 @@ class CompressionTab(BaseProcessingTab):
             width=15
         )
         quality_combo.pack(side='left', padx=5)
+        self.level_help = HelpIcon(self.options_frame, self._get_text('tooltips.compression_level'))
+        self.level_help.pack(side='left', padx=(0, 10))
 
         # DPI
         self.dpi_label = ttk.Label(self.options_frame, text=self._get_text('options.dpi'))
@@ -311,6 +313,8 @@ class CompressionTab(BaseProcessingTab):
             textvariable=self.dpi_var,
             width=5
         ).pack(side='left')
+        self.dpi_help = HelpIcon(self.options_frame, self._get_text('tooltips.target_dpi'))
+        self.dpi_help.pack(side='left', padx=(0, 10))
 
         # Downsample threshold
         self.threshold_label = ttk.Label(self.options_frame, text=self._get_text('options.downsample_threshold'))
@@ -325,6 +329,8 @@ class CompressionTab(BaseProcessingTab):
             textvariable=self.threshold_var,
             width=5
         ).pack(side='left')
+        self.threshold_help = HelpIcon(self.options_frame, self._get_text('tooltips.downsample_threshold'))
+        self.threshold_help.pack(side='left', padx=(0, 10))
 
         # Image quality
         self.image_quality_label = ttk.Label(self.options_frame, text=self._get_text('options.image_quality'))
@@ -338,6 +344,8 @@ class CompressionTab(BaseProcessingTab):
             textvariable=self.image_quality_var,
             width=5
         ).pack(side='left')
+        self.image_quality_help = HelpIcon(self.options_frame, self._get_text('tooltips.image_quality'))
+        self.image_quality_help.pack(side='left', padx=(0, 10))
 
     def _start_processing(self):
         """Start PDF compression."""
@@ -381,10 +389,15 @@ class CompressionTab(BaseProcessingTab):
         """Update all UI text with current language."""
         super().update_translations()
         self.options_frame.configure(text=self._get_text('groups.compression_options'))
-        self.quality_preset_label.configure(text=self._get_text('labels.compression_quality'))
+        self.level_preset_label.configure(text=self._get_text('labels.compression_level'))
         self.dpi_label.configure(text=self._get_text('options.dpi'))
         self.threshold_label.configure(text=self._get_text('options.downsample_threshold'))
         self.image_quality_label.configure(text=self._get_text('options.image_quality'))
+        # Update help tooltips
+        self.level_help.update_tooltip(self._get_text('tooltips.compression_level'))
+        self.dpi_help.update_tooltip(self._get_text('tooltips.target_dpi'))
+        self.threshold_help.update_tooltip(self._get_text('tooltips.downsample_threshold'))
+        self.image_quality_help.update_tooltip(self._get_text('tooltips.image_quality'))
 
 
 class LabelingTab(BaseProcessingTab):

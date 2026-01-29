@@ -10,6 +10,141 @@ if TYPE_CHECKING:
     from ..core.language_manager import LanguageManager
 
 
+class Tooltip:
+    """A tooltip widget that displays help text when hovering over a widget."""
+
+    def __init__(self, widget: tk.Widget, text: str = "", delay: int = 500):
+        """Initialize tooltip.
+
+        Args:
+            widget: The widget to attach the tooltip to
+            text: The tooltip text to display
+            delay: Delay in milliseconds before showing the tooltip
+        """
+        self.widget = widget
+        self.text = text
+        self.delay = delay
+        self.tooltip_window: Optional[tk.Toplevel] = None
+        self.scheduled_id: Optional[str] = None
+
+        # Bind events
+        self.widget.bind('<Enter>', self._on_enter, add='+')
+        self.widget.bind('<Leave>', self._on_leave, add='+')
+        self.widget.bind('<ButtonPress>', self._on_leave, add='+')
+
+    def _on_enter(self, event=None):
+        """Handle mouse enter event."""
+        self._cancel_scheduled()
+        if self.text:
+            self.scheduled_id = self.widget.after(self.delay, self._show_tooltip)
+
+    def _on_leave(self, event=None):
+        """Handle mouse leave event."""
+        self._cancel_scheduled()
+        self._hide_tooltip()
+
+    def _cancel_scheduled(self):
+        """Cancel any scheduled tooltip display."""
+        if self.scheduled_id:
+            self.widget.after_cancel(self.scheduled_id)
+            self.scheduled_id = None
+
+    def _show_tooltip(self):
+        """Display the tooltip."""
+        if self.tooltip_window or not self.text:
+            return
+
+        # Get widget position
+        x = self.widget.winfo_rootx()
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
+
+        # Create tooltip window
+        self.tooltip_window = tk.Toplevel(self.widget)
+        self.tooltip_window.wm_overrideredirect(True)
+        self.tooltip_window.wm_geometry(f"+{x}+{y}")
+
+        # Create tooltip label with styling
+        label = ttk.Label(
+            self.tooltip_window,
+            text=self.text,
+            justify='left',
+            background='#ffffe0',
+            relief='solid',
+            borderwidth=1,
+            padding=(5, 3)
+        )
+        label.pack()
+
+        # Ensure tooltip stays on screen
+        self.tooltip_window.update_idletasks()
+        screen_width = self.widget.winfo_screenwidth()
+        screen_height = self.widget.winfo_screenheight()
+        tooltip_width = self.tooltip_window.winfo_width()
+        tooltip_height = self.tooltip_window.winfo_height()
+
+        if x + tooltip_width > screen_width:
+            x = screen_width - tooltip_width - 5
+        if y + tooltip_height > screen_height:
+            y = self.widget.winfo_rooty() - tooltip_height - 5
+
+        self.tooltip_window.wm_geometry(f"+{x}+{y}")
+
+    def _hide_tooltip(self):
+        """Hide the tooltip."""
+        if self.tooltip_window:
+            self.tooltip_window.destroy()
+            self.tooltip_window = None
+
+    def update_text(self, text: str):
+        """Update the tooltip text.
+
+        Args:
+            text: New tooltip text
+        """
+        self.text = text
+        if self.tooltip_window:
+            self._hide_tooltip()
+
+
+class HelpIcon(ttk.Frame):
+    """A small question mark icon that shows help text on hover or click."""
+
+    def __init__(self, parent: tk.Widget, tooltip_text: str = "",
+                 language_manager: Optional["LanguageManager"] = None):
+        """Initialize help icon.
+
+        Args:
+            parent: Parent tkinter widget
+            tooltip_text: The help text to display
+            language_manager: Language manager for translations
+        """
+        super().__init__(parent)
+        self.language_manager = language_manager
+        self.tooltip_text = tooltip_text
+
+        # Create the question mark label
+        self.icon_label = ttk.Label(
+            self,
+            text="?",
+            font=('TkDefaultFont', 8, 'bold'),
+            foreground='#666666',
+            cursor='question_arrow'
+        )
+        self.icon_label.pack()
+
+        # Attach tooltip
+        self.tooltip = Tooltip(self.icon_label, tooltip_text)
+
+    def update_tooltip(self, text: str):
+        """Update the help text.
+
+        Args:
+            text: New help text
+        """
+        self.tooltip_text = text
+        self.tooltip.update_text(text)
+
+
 class FileSelector:
     """Component for selecting files and folders."""
 

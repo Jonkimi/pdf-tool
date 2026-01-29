@@ -30,6 +30,7 @@
     "input_files": "输入文件:",
     "output_directory": "输出目录:",
     "compression_quality": "压缩质量:",
+    "compression_level": "压缩级别:",
     "image_compression": "图片压缩:",
     "label_position": "标签位置:",
     "font_size": "字体大小:",
@@ -110,5 +111,11 @@
     "dpi": "DPI:",
     "downsample_threshold": "下采样阈值:",
     "image_quality": "图片质量:"
+  },
+  "tooltips": {
+    "compression_level": "压缩级别预设，预设不同的压缩参数组合：\n• screen - 72 DPI，低图像质量，文件最小，适合屏幕显示\n• ebook - 150 DPI，中等图像质量，适合电子书阅读\n• printer - 300 DPI，高图像质量，适合打印输出\n• prepress - 300 DPI，最高图像质量，适合印刷出版\n\n各级别预设了 DPI、图像质量、色彩处理等参数。",
+    "target_dpi": "目标图像分辨率（每英寸点数）。\n此参数会覆盖压缩级别预设的 DPI 值。\n数值越低文件越小，但图像质量会下降。\n推荐值：72-150 用于屏幕显示，300 用于打印。",
+    "downsample_threshold": "下采样触发阈值。\n当图像分辨率超过目标 DPI 乘以此阈值时，\n才会进行下采样。例如：阈值 1.5 表示图像\n分辨率需超过目标 DPI 的 1.5 倍才会压缩。",
+    "image_quality": "JPEG 图像压缩质量（1-100）。\n数值越高图像质量越好，但文件越大。\n推荐值：60-80 可获得较好的质量与大小平衡。"
   }
 }

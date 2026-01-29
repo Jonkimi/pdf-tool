@@ -30,6 +30,7 @@
     "input_files": "Input Files:",
     "output_directory": "Output Directory:",
     "compression_quality": "Compression Quality:",
+    "compression_level": "Compression Level:",
     "image_compression": "Image Compression:",
     "label_position": "Label Position:",
     "font_size": "Font Size:",
@@ -110,5 +111,11 @@
     "dpi": "DPI:",
     "downsample_threshold": "Downsample Threshold:",
     "image_quality": "Image Quality:"
+  },
+  "tooltips": {
+    "compression_level": "Compression level presets with different parameter combinations:\n• screen - 72 DPI, low image quality, smallest file, for screen display\n• ebook - 150 DPI, medium image quality, for e-book reading\n• printer - 300 DPI, high image quality, for printing output\n• prepress - 300 DPI, highest image quality, for press publishing\n\nEach level presets DPI, image quality, color handling, etc.",
+    "target_dpi": "Target image resolution (dots per inch).\nThis parameter overrides the DPI value from the compression level preset.\nLower values produce smaller files but reduce image quality.\nRecommended: 72-150 for screen, 300 for print.",
+    "downsample_threshold": "Downsampling trigger threshold.\nImages are only downsampled when their resolution\nexceeds target DPI multiplied by this threshold.\nE.g., 1.5 means images must exceed 1.5x target DPI.",
+    "image_quality": "JPEG image compression quality (1-100).\nHigher values mean better quality but larger files.\nRecommended: 60-80 for good quality/size balance."
   }
 }

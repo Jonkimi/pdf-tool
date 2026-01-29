@@ -139,5 +139,12 @@
     "copy": "复制",
     "detected": "成功检测到 Ghostscript！",
     "status_not_found": "未找到"
+  },
+  "word": {
+    "status_title": "Word 转换后端",
+    "active_backend": "当前后端",
+    "no_backend": "无可用转换后端",
+    "word_available": "Microsoft Word",
+    "libreoffice_available": "LibreOffice"
   }
 }

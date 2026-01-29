@@ -646,7 +646,7 @@ class MainWindow:
         self.menubar = menubar
 
     def _setup_status_bar(self):
-        """Setup top status bar with Ghostscript indicator."""
+        """Setup top status bar with Word and Ghostscript indicators."""
         status_frame = ttk.Frame(self.root)
         status_frame.pack(fill='x', padx=5, pady=(5, 0))
 
@@ -673,7 +673,31 @@ class MainWindow:
         self._gs_indicator.bind("<Button-1>", lambda e: self._on_gs_indicator_click())
         self._gs_label.bind("<Button-1>", lambda e: self._on_gs_indicator_click())
 
-        # Update indicator state
+        # Word backend status indicator (left of GS)
+        self._word_status_frame = ttk.Frame(status_frame)
+        self._word_status_frame.pack(side='right', padx=(0, 10))
+
+        self._word_indicator = tk.Label(
+            self._word_status_frame,
+            text="●",
+            font=('TkDefaultFont', 12),
+            cursor="hand2"
+        )
+        self._word_indicator.pack(side='left')
+
+        self._word_label = ttk.Label(
+            self._word_status_frame,
+            text="Word",
+            cursor="hand2"
+        )
+        self._word_label.pack(side='left', padx=(2, 0))
+
+        # Bind click to show backend info
+        self._word_indicator.bind("<Button-1>", lambda e: self._on_word_indicator_click())
+        self._word_label.bind("<Button-1>", lambda e: self._on_word_indicator_click())
+
+        # Update indicator states
+        self._update_word_indicator()
         self._update_gs_indicator()
 
     def _on_gs_indicator_click(self):
@@ -712,6 +736,43 @@ class MainWindow:
 
         # Set tooltip
         self._set_tooltip(self._gs_status_frame, tooltip_text)
+
+    def _on_word_indicator_click(self):
+        """Handle click on Word backend indicator."""
+        backend_status = self.app_controller.get_conversion_backend_status()
+        active_backend = backend_status.get('active_backend', 'None')
+        word_available = backend_status.get('word', {}).get('available', False)
+        lo_available = backend_status.get('libreoffice', {}).get('available', False)
+
+        # Build status message
+        lines = [self._get_text('word.status_title')]
+        lines.append("")
+        lines.append(f"{self._get_text('word.active_backend')}: {active_backend}")
+        lines.append("")
+        lines.append(f"Microsoft Word: {'✓' if word_available else '✗'}")
+        lines.append(f"LibreOffice: {'✓' if lo_available else '✗'}")
+
+        from tkinter import messagebox
+        messagebox.showinfo(
+            self._get_text('word.status_title'),
+            "\n".join(lines),
+            parent=self.root
+        )
+
+    def _update_word_indicator(self):
+        """Update Word backend status indicator."""
+        backend_status = self.app_controller.get_conversion_backend_status()
+        active_backend = backend_status.get('active_backend', 'None')
+
+        if active_backend != 'None':
+            self._word_indicator.configure(foreground='green')
+            tooltip_text = f"{self._get_text('word.active_backend')}: {active_backend}"
+        else:
+            self._word_indicator.configure(foreground='red')
+            tooltip_text = self._get_text('word.no_backend')
+
+        # Set tooltip
+        self._set_tooltip(self._word_status_frame, tooltip_text)
 
     def _set_tooltip(self, widget, text):
         """Set tooltip for widget."""

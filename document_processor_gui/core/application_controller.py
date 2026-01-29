@@ -12,6 +12,7 @@ from ..processing.labeling_engine import LabelingEngine
 from ..backend.word_converter import WordConverter
 from ..backend.ghostscript_wrapper import GhostscriptWrapper
 from ..backend.pdf_labeler import PDFLabeler
+from ..backend.conversion_backend import ConversionBackendType
 
 if TYPE_CHECKING:
     from ..config import ConfigurationManager
@@ -60,7 +61,20 @@ class ApplicationController:
     def _ensure_backends_initialized(self) -> None:
         """Lazily initialize backend services."""
         if self._word_converter is None:
-            self._word_converter = WordConverter()
+            config = self.config_manager.get_config()
+            # Determine preferred backend from config
+            preferred_backend = None
+            if config.preferred_conversion_backend == "word":
+                preferred_backend = ConversionBackendType.WORD
+            elif config.preferred_conversion_backend == "libreoffice":
+                preferred_backend = ConversionBackendType.LIBREOFFICE
+            # auto: leave as None for automatic selection
+
+            libreoffice_path = config.libreoffice_path if config.libreoffice_path else None
+            self._word_converter = WordConverter(
+                preferred_backend=preferred_backend,
+                libreoffice_path=libreoffice_path
+            )
         if self._gs_wrapper is None:
             config = self.config_manager.get_config()
             gs_path = config.ghostscript_path if config.ghostscript_path else None
@@ -377,7 +391,8 @@ class ApplicationController:
         status = {
             'ghostscript': {'available': False, 'path': None, 'error': None},
             'docx2pdf': {'available': False, 'error': None},
-            'pymupdf': {'available': False, 'error': None}
+            'pymupdf': {'available': False, 'error': None},
+            'libreoffice': {'available': False, 'path': None, 'error': None}
         }
 
         # Check Ghostscript
@@ -403,6 +418,17 @@ class ApplicationController:
         except ImportError as e:
             status['pymupdf']['error'] = str(e)
 
+        # Check LibreOffice
+        try:
+            from ..backend.libreoffice_installer import LibreOfficeInstaller
+            installer = LibreOfficeInstaller()
+            lo_path = installer.detect_libreoffice()
+            if lo_path:
+                status['libreoffice']['available'] = True
+                status['libreoffice']['path'] = lo_path
+        except Exception as e:
+            status['libreoffice']['error'] = str(e)
+
         return status
 
     def check_and_setup_ghostscript(self) -> bool:
@@ -424,6 +450,27 @@ class ApplicationController:
             self.update_settings(ghostscript_path=gs_path)
         # Force re-initialization on next use
         self._gs_wrapper = None
+
+    def get_conversion_backend_status(self) -> Dict[str, Any]:
+        """Get detailed status of Word to PDF conversion backends.
+
+        Returns:
+            Dict with backend status information
+        """
+        self._ensure_backends_initialized()
+        return self._word_converter.get_backend_status()
+
+    def refresh_libreoffice(self, lo_path: Optional[str] = None) -> None:
+        """Re-initialize WordConverter after LibreOffice install or path change.
+
+        Args:
+            lo_path: Optional explicit path to set
+        """
+        if lo_path:
+            self.update_settings(libreoffice_path=lo_path)
+        # Force re-initialization on next use
+        self._word_converter = None
+        self._conversion_engine = None
 
     def get_text(self, key: str, **kwargs) -> str:
         """Get localized text.

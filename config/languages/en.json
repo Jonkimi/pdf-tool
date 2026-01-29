@@ -139,5 +139,12 @@
     "copy": "Copy",
     "detected": "Ghostscript detected successfully!",
     "status_not_found": "Not Found"
+  },
+  "word": {
+    "status_title": "Word Conversion Backend",
+    "active_backend": "Active backend",
+    "no_backend": "No conversion backend available",
+    "word_available": "Microsoft Word",
+    "libreoffice_available": "LibreOffice"
   }
 }

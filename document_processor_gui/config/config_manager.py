@@ -54,6 +54,10 @@ class AppConfig:
     downsample_threshold: float = 1.1
     preserve_original: bool = True
     skip_ghostscript_check: bool = False
+
+    # Word to PDF conversion settings
+    libreoffice_path: str = ""
+    preferred_conversion_backend: str = "auto"  # "auto", "word", "libreoffice"
     
     def validate(self) -> bool:
         """Validate configuration values."""
@@ -102,7 +106,14 @@ class AppConfig:
             # Validate threshold
             if self.downsample_threshold < 1.0:
                 raise ConfigValidationError("Downsample threshold must be at least 1.0")
-            
+
+            # Validate conversion backend preference
+            valid_backends = ["auto", "word", "libreoffice"]
+            if self.preferred_conversion_backend not in valid_backends:
+                raise ConfigValidationError(
+                    f"Invalid conversion backend: {self.preferred_conversion_backend}"
+                )
+
             return True
             
         except ConfigValidationError:

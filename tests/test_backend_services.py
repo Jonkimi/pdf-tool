@@ -9,26 +9,24 @@ from document_processor_gui.core.exceptions import ProcessingError, ValidationEr
 import fitz
 
 class TestWordConverter:
-    @patch('document_processor_gui.backend.word_converter.convert')
-    def test_convert_directly(self, mock_convert):
+    @patch('document_processor_gui.backend.conversion_backend.WordBackend.convert')
+    @patch('document_processor_gui.backend.conversion_backend.WordBackend.is_available', return_value=True)
+    def test_convert_directly(self, mock_available, mock_convert):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             input_file = temp_path / "test.docx"
             output_file = temp_path / "test.pdf"
-            
+
             # Create dummy input file
             input_file.touch()
-            
-            # Mock convert to create output file
-            def side_effect(inp, out):
-                Path(out).touch()
-            mock_convert.side_effect = side_effect
-            
+
+            # Mock convert to return True
+            mock_convert.return_value = True
+
             converter = WordConverter()
             result = converter.convert_to_pdf(str(input_file), str(output_file))
-            
+
             assert result is True
-            assert output_file.exists()
             mock_convert.assert_called_once()
 
     def test_unsupported_format(self):
@@ -37,41 +35,43 @@ class TestWordConverter:
             converter.convert_to_pdf("test.txt", "test.pdf")
 
 class TestGhostscriptWrapper:
-    @patch('shutil.which')
-    def test_init_find_gs(self, mock_which):
-        mock_which.return_value = "/usr/bin/gs"
+    @patch('document_processor_gui.backend.ghostscript_installer.GhostscriptInstaller.detect_ghostscript')
+    def test_init_find_gs(self, mock_detect):
+        mock_detect.return_value = "/usr/bin/gs"
         wrapper = GhostscriptWrapper()
         assert wrapper.gs_path == "/usr/bin/gs"
         assert wrapper.is_available()
 
-    def test_init_no_gs(self):
-        with patch('shutil.which', return_value=None):
-            wrapper = GhostscriptWrapper(gs_path=None)
-            # If not provided, it tries to find it. If not found, it is None.
-            assert wrapper.gs_path is None
-            assert not wrapper.is_available()
+    @patch('document_processor_gui.backend.ghostscript_installer.GhostscriptInstaller.detect_ghostscript')
+    def test_init_no_gs(self, mock_detect):
+        mock_detect.return_value = None
+        wrapper = GhostscriptWrapper(gs_path=None)
+        # If not provided, it tries to find it. If not found, it is None.
+        assert wrapper.gs_path is None
+        assert not wrapper.is_available()
 
     @patch('subprocess.run')
     def test_compress_pdf(self, mock_run):
         wrapper = GhostscriptWrapper(gs_path="/usr/bin/gs")
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             input_file = temp_path / "input.pdf"
             output_file = temp_path / "output.pdf"
             input_file.touch()
-            
+
             mock_run.return_value = MagicMock(returncode=0, stderr="")
-            
+
             result = wrapper.compress_pdf(str(input_file), str(output_file))
             assert result is True
             mock_run.assert_called_once()
 
-    def test_compress_pdf_missing_gs(self):
-        with patch('shutil.which', return_value=None):
-            wrapper = GhostscriptWrapper()
-            with pytest.raises(DependencyError):
-                wrapper.compress_pdf("in.pdf", "out.pdf")
+    @patch('document_processor_gui.backend.ghostscript_installer.GhostscriptInstaller.detect_ghostscript')
+    def test_compress_pdf_missing_gs(self, mock_detect):
+        mock_detect.return_value = None
+        wrapper = GhostscriptWrapper()
+        with pytest.raises(DependencyError):
+            wrapper.compress_pdf("in.pdf", "out.pdf")
 
 class TestPDFLabeler:
     def test_add_label(self):

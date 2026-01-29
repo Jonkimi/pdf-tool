@@ -38,6 +38,7 @@ class BaseProcessingTab(ttk.Frame):
         self.file_type = file_type
 
         self._progress_dialog: Optional[ProgressDialog] = None
+        self._processing_complete = False
         self._setup_base_ui()
 
     def _get_text(self, key: str, **kwargs) -> str:
@@ -134,6 +135,7 @@ class BaseProcessingTab(ttk.Frame):
 
     def _show_progress_dialog(self, title: str):
         """Show progress dialog."""
+        self._processing_complete = False
         root = self.winfo_toplevel()
         self._progress_dialog = ProgressDialog(
             root,
@@ -153,6 +155,8 @@ class BaseProcessingTab(ttk.Frame):
 
     def _update_progress_ui(self, current: int, total: int, filename: str):
         """Update progress UI - must be called from main thread."""
+        if self._processing_complete:
+            return
         if self._progress_dialog:
             self._progress_dialog.update_progress(current, total, filename)
             self.file_list.set_file_status(
@@ -174,14 +178,25 @@ class BaseProcessingTab(ttk.Frame):
 
     def _show_completion_ui(self, results: "ProcessingResults"):
         """Show completion UI - must be called from main thread."""
+        self._processing_complete = True
         if self._progress_dialog:
             self._progress_dialog.close()
             self._progress_dialog = None
 
-        # Update file statuses
+        # Update file statuses for processed files
+        processed_files = set()
         for result in results.results:
             status = self._get_text('messages.status_messages.done') if result.success else self._get_text('messages.status_messages.failed')
             self.file_list.set_file_status(result.input_file, status)
+            processed_files.add(result.input_file)
+
+        # Reset unprocessed files that are still showing "Processing..." back to "Pending"
+        processing_text = self._get_text('messages.status_messages.processing')
+        pending_text = self._get_text('messages.status_messages.pending')
+        for file_path in self.file_list.get_files():
+            if file_path not in processed_files:
+                if self.file_list.get_file_status(file_path) == processing_text:
+                    self.file_list.set_file_status(file_path, pending_text)
 
         # Show results dialog
         root = self.winfo_toplevel()
@@ -199,9 +214,17 @@ class BaseProcessingTab(ttk.Frame):
 
     def _show_error_ui(self, error_msg: str):
         """Show error UI - must be called from main thread."""
+        self._processing_complete = True
         if self._progress_dialog:
             self._progress_dialog.close()
             self._progress_dialog = None
+
+        # Reset files that are still showing "Processing..." back to "Pending"
+        processing_text = self._get_text('messages.status_messages.processing')
+        pending_text = self._get_text('messages.status_messages.pending')
+        for file_path in self.file_list.get_files():
+            if self.file_list.get_file_status(file_path) == processing_text:
+                self.file_list.set_file_status(file_path, pending_text)
 
         ErrorDialog(self.language_manager).show_error(
             self.winfo_toplevel(),

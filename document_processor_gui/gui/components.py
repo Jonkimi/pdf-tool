@@ -459,6 +459,17 @@ class FileListWidget(ttk.Frame):
         """
         return list(self.tree.selection())
 
+    def get_file_status(self, file_path: str) -> Optional[str]:
+        """Get the status of a file.
+
+        Args:
+            file_path: File path
+
+        Returns:
+            Status text or None if not found
+        """
+        return self._file_status.get(file_path)
+
     def set_file_status(self, file_path: str, status: str) -> None:
         """Set status for a file.
 

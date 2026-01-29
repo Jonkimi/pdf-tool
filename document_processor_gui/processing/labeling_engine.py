@@ -79,7 +79,7 @@ class LabelingEngine:
         
         result = ProcessingResult(
             success=False,
-            input_file=str(input_path),
+            input_file=file_path,
             file_size_before=input_path.stat().st_size if input_path.exists() else 0
         )
         

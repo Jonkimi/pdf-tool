@@ -85,13 +85,13 @@ class BaseProcessingTab(ttk.Frame):
         )
         self.output_selector.grid(row=2, column=0, sticky='ew', padx=10, pady=5)
 
-        # Process button
+        # Process button (placed at row 5, after options frame which is at row 4 in subclasses)
         self.process_button = ttk.Button(
             self,
             text=self._get_text('buttons.start_processing'),
             command=self._start_processing
         )
-        self.process_button.grid(row=3, column=0, pady=10)
+        self.process_button.grid(row=5, column=0, pady=10)
 
     def _add_files(self):
         """Handle add files button."""
@@ -466,7 +466,7 @@ class LabelingTab(BaseProcessingTab):
 
         # Preview panel (on the right side)
         self.preview_frame = ttk.LabelFrame(self, text=self._get_text('groups.preview'), padding=5)
-        self.preview_frame.grid(row=0, column=1, rowspan=5, sticky='nsew', padx=10, pady=5)
+        self.preview_frame.grid(row=0, column=1, rowspan=6, sticky='nsew', padx=10, pady=5)
 
         self.preview_panel = PreviewPanel(self.preview_frame, preview_size=300)
         self.preview_panel.pack(fill='both', expand=True)

@@ -78,7 +78,7 @@ class TestApplicationController:
 
         assert isinstance(settings, dict)
         assert 'language' in settings
-        assert 'compression_quality' in settings
+        assert 'compression_level' in settings
         assert settings['language'] == 'zh'
 
     def test_update_settings(self, controller):

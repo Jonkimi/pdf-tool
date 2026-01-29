@@ -29,7 +29,6 @@
   "labels": {
     "input_files": "输入文件:",
     "output_directory": "输出目录:",
-    "compression_quality": "压缩质量:",
     "compression_level": "压缩级别:",
     "image_compression": "图片压缩:",
     "label_position": "标签位置:",

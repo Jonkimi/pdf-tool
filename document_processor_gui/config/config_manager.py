@@ -22,13 +22,13 @@ class AppConfig:
     default_output_dir: str = ""
     
     # Processing settings
-    compression_quality: str = "ebook"  # screen, ebook, printer, prepress
+    compression_level: str = "screen"  # screen, ebook, printer, prepress
     image_compression_enabled: bool = False
     image_quality: int = 75  # 1-100
     optimize_png: bool = True
     
     # PDF labeling settings
-    label_position: str = "footer"  # header, footer, top-left, top-right, bottom-left, bottom-right
+    label_position: str = "header"  # header, footer, top-left, top-right, bottom-left, bottom-right
     label_font_size: int = 10
     label_font_color: str = "#FF0000"
     label_transparency: float = 1.0  # 0.0-1.0
@@ -66,10 +66,10 @@ class AppConfig:
             if self.language not in ["zh", "en"]:
                 raise ConfigValidationError(f"Invalid language: {self.language}")
             
-            # Validate compression quality
+            # Validate compression level
             valid_qualities = ["screen", "ebook", "printer", "prepress"]
-            if self.compression_quality not in valid_qualities:
-                raise ConfigValidationError(f"Invalid compression quality: {self.compression_quality}")
+            if self.compression_level not in valid_qualities:
+                raise ConfigValidationError(f"Invalid compression level: {self.compression_level}")
             
             # Validate image quality
             if not (1 <= self.image_quality <= 100):

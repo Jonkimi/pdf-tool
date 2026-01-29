@@ -78,11 +78,11 @@ class TestConfigurationManager:
             config.validate()
         config.language = "zh"  # Reset
         
-        # Test invalid compression quality
-        config.compression_quality = "bad"
+        # Test invalid compression level
+        config.compression_level = "bad"
         with pytest.raises(ConfigValidationError):
             config.validate()
-        config.compression_quality = "ebook"
+        config.compression_level = "ebook"
         
         # Test invalid image quality
         config.image_quality = 101

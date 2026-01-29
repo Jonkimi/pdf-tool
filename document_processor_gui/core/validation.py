@@ -330,13 +330,13 @@ class InputValidator:
 
         # Common validations
         if processing_type == "compression":
-            # Compression quality
-            quality = settings.get('compression_quality', 'ebook')
+            # Compression level
+            quality = settings.get('compression_level', 'screen')
             valid_qualities = ['screen', 'ebook', 'printer', 'prepress']
             if quality not in valid_qualities:
                 result.add_error(
-                    f"Invalid compression quality: {quality}",
-                    field='compression_quality',
+                    f"Invalid compression level: {quality}",
+                    field='compression_level',
                     suggestion=f"Use one of: {', '.join(valid_qualities)}"
                 )
 
@@ -360,7 +360,7 @@ class InputValidator:
                 )
 
             # Position
-            position = settings.get('label_position', 'footer')
+            position = settings.get('label_position', 'header')
             valid_positions = ['header', 'footer', 'top-left', 'top-right', 'bottom-left', 'bottom-right']
             if position not in valid_positions:
                 result.add_error(
@@ -537,7 +537,7 @@ class InputValidator:
 
         # Estimation factors based on processing type
         if processing_type == "compression":
-            quality = settings.get('compression_quality', 'ebook')
+            quality = settings.get('compression_level', 'screen')
             factors = {
                 'screen': 0.3,
                 'ebook': 0.5,

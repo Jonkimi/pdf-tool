@@ -2,7 +2,7 @@
   "language": "zh",
   "default_input_dir": "",
   "default_output_dir": "",
-  "compression_quality": "screen",
+  "compression_level": "screen",
   "image_compression_enabled": false,
   "image_quality": 75,
   "optimize_png": true,

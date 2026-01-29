@@ -11,7 +11,7 @@ def app_config_strategy(draw):
         language=draw(st.sampled_from(["zh", "en"])),
         default_input_dir=draw(st.text()),
         default_output_dir=draw(st.text()),
-        compression_quality=draw(st.sampled_from(["screen", "ebook", "printer", "prepress"])),
+        compression_level=draw(st.sampled_from(["screen", "ebook", "printer", "prepress"])),
         image_compression_enabled=draw(st.booleans()),
         image_quality=draw(st.integers(min_value=1, max_value=100)),
         optimize_png=draw(st.booleans()),

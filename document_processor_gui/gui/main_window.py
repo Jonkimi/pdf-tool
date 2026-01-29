@@ -311,7 +311,7 @@ class CompressionTab(BaseProcessingTab):
         self.level_preset_label = ttk.Label(self.options_frame, text=self._get_text('labels.compression_level'))
         self.level_preset_label.pack(side='left', padx=5)
         self.quality_var = tk.StringVar(
-            value=self.app_controller.get_settings().get('compression_quality', 'ebook')
+            value=self.app_controller.get_settings().get('compression_level', 'screen')
         )
         quality_combo = ttk.Combobox(
             self.options_frame,
@@ -403,7 +403,7 @@ class CompressionTab(BaseProcessingTab):
 
         # Get settings with UI overrides
         settings = self.app_controller.get_settings()
-        settings['compression_quality'] = self.quality_var.get()
+        settings['compression_level'] = self.quality_var.get()
         settings['target_dpi'] = self.dpi_var.get()
         settings['downsample_threshold'] = self.threshold_var.get()
         settings['image_quality'] = self.image_quality_var.get()
@@ -460,7 +460,7 @@ class LabelingTab(BaseProcessingTab):
         ttk.Label(self.options_frame, text=self._get_text('labels.label_position')).grid(
             row=0, column=0, sticky='w', padx=5, pady=2
         )
-        self.position_var = tk.StringVar(value=settings.get('label_position', 'footer'))
+        self.position_var = tk.StringVar(value=settings.get('label_position', 'header'))
         positions = ['header', 'footer', 'top-left', 'top-right', 'bottom-left', 'bottom-right']
         ttk.Combobox(
             self.options_frame,

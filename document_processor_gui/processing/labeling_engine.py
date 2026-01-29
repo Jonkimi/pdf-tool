@@ -101,7 +101,7 @@ class LabelingEngine:
                     str(input_path),
                     str(output_path),
                     text=label_text,
-                    position=settings.get('label_position', 'footer'),
+                    position=settings.get('label_position', 'header'),
                     font_size=settings.get('label_font_size', 10),
                     color=settings.get('label_font_color', '#FF0000'),
                     opacity=settings.get('label_transparency', 1.0),
@@ -135,7 +135,7 @@ class LabelingEngine:
         return self.pdf_labeler.generate_preview(
             str(input_path),
             text=label_text,
-            position=settings.get('label_position', 'footer'),
+            position=settings.get('label_position', 'header'),
             font_size=settings.get('label_font_size', 10),
             color=settings.get('label_font_color', '#FF0000'),
             opacity=settings.get('label_transparency', 1.0)

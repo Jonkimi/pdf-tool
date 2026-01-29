@@ -510,14 +510,14 @@ class SettingsDialog(tk.Toplevel):
         """Setup processing settings tab."""
         row = 0
 
-        # Compression quality
-        ttk.Label(parent, text=self._get_text('labels.compression_quality')).grid(
+        # Compression level
+        ttk.Label(parent, text=self._get_text('labels.compression_level')).grid(
             row=row, column=0, sticky='w', pady=5
         )
-        self._vars['compression_quality'] = tk.StringVar()
+        self._vars['compression_level'] = tk.StringVar()
         quality_combo = ttk.Combobox(
             parent,
-            textvariable=self._vars['compression_quality'],
+            textvariable=self._vars['compression_level'],
             values=['screen', 'ebook', 'printer', 'prepress'],
             state='readonly',
             width=20

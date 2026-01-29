@@ -29,7 +29,6 @@
   "labels": {
     "input_files": "Input Files:",
     "output_directory": "Output Directory:",
-    "compression_quality": "Compression Quality:",
     "compression_level": "Compression Level:",
     "image_compression": "Image Compression:",
     "label_position": "Label Position:",

@@ -1,0 +1,97 @@
+{
+  "app_title": "文档处理工具",
+  "menu": {
+    "file": "文件",
+    "settings": "设置",
+    "language": "语言",
+    "help": "帮助",
+    "exit": "退出",
+    "about": "关于"
+  },
+  "tabs": {
+    "conversion": "Word转PDF",
+    "compression": "PDF压缩", 
+    "labeling": "PDF标注"
+  },
+  "buttons": {
+    "select_files": "选择文件",
+    "select_folder": "选择文件夹",
+    "add_files": "添加文件",
+    "remove_files": "移除文件",
+    "clear_list": "清空列表",
+    "start_processing": "开始处理",
+    "cancel": "取消",
+    "ok": "确定",
+    "browse": "浏览",
+    "preview": "预览",
+    "reset": "重置"
+  },
+  "labels": {
+    "input_files": "输入文件:",
+    "output_directory": "输出目录:",
+    "compression_quality": "压缩质量:",
+    "image_compression": "图片压缩:",
+    "label_position": "标签位置:",
+    "font_size": "字体大小:",
+    "font_color": "字体颜色:",
+    "progress": "进度:",
+    "status": "状态:",
+    "files_processed": "已处理文件:",
+    "current_file": "当前文件:"
+  },
+  "quality_levels": {
+    "screen": "屏幕显示 (最小文件)",
+    "ebook": "电子书 (平衡)",
+    "printer": "打印 (高质量)",
+    "prepress": "印刷 (最高质量)"
+  },
+  "label_positions": {
+    "header": "页眉",
+    "footer": "页脚",
+    "top-left": "左上角",
+    "top-right": "右上角",
+    "bottom-left": "左下角",
+    "bottom-right": "右下角"
+  },
+  "messages": {
+    "processing_complete": "处理完成",
+    "processing_cancelled": "处理已取消",
+    "no_files_selected": "未选择文件",
+    "invalid_output_directory": "输出目录无效",
+    "processing_error": "处理错误",
+    "file_not_found": "文件未找到",
+    "permission_denied": "权限被拒绝",
+    "disk_space_insufficient": "磁盘空间不足",
+    "ghostscript_not_found": "未找到Ghostscript",
+    "dependency_missing": "缺少依赖项",
+    "success": "成功处理 {count} 个文件",
+    "partial_success": "成功处理 {success} 个文件，失败 {failed} 个",
+    "all_failed": "所有文件处理失败"
+  },
+  "dialogs": {
+    "select_input_files": "选择输入文件",
+    "select_output_directory": "选择输出目录",
+    "processing_progress": "处理进度",
+    "error": "错误",
+    "warning": "警告",
+    "information": "信息",
+    "confirmation": "确认"
+  },
+  "file_types": {
+    "word_documents": "Word文档",
+    "pdf_documents": "PDF文档",
+    "all_files": "所有文件"
+  },
+  "settings": {
+    "title": "设置",
+    "general": "常规",
+    "processing": "处理",
+    "interface": "界面",
+    "advanced": "高级",
+    "language_selection": "语言选择:",
+    "default_directories": "默认目录",
+    "compression_settings": "压缩设置",
+    "labeling_settings": "标注设置",
+    "window_settings": "窗口设置"
+  }
+}

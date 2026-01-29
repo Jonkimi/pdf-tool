@@ -1,0 +1,32 @@
+# Document Processor GUI Dependencies
+
+# Core GUI framework (built-in with Python)
+# tkinter - included with Python standard library
+
+# Document processing libraries
+docx2pdf>=0.1.8
+PyMuPDF>=1.23.0
+Pillow>=10.0.0
+pypdf>=3.0.0
+reportlab>=4.0.0
+
+# Word document processing (alternative/fallback)
+python-docx>=0.8.11
+
+# Testing frameworks
+pytest>=7.0.0
+pytest-cov>=4.0.0
+hypothesis>=6.0.0
+
+# Development tools
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Optional: For better file type detection
+python-magic>=0.4.27
+
+# Note: Ghostscript must be installed separately on the system
+# Windows: Download from https://www.ghostscript.com/download/gsdnld.html
+# macOS: brew install ghostscript
+# Linux: sudo apt-get install ghostscript (Ubuntu/Debian) or equivalent

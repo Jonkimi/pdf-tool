@@ -1,0 +1,97 @@
+{
+  "app_title": "Document Processor",
+  "menu": {
+    "file": "File",
+    "settings": "Settings",
+    "language": "Language",
+    "help": "Help",
+    "exit": "Exit",
+    "about": "About"
+  },
+  "tabs": {
+    "conversion": "Word to PDF",
+    "compression": "PDF Compression",
+    "labeling": "PDF Labeling"
+  },
+  "buttons": {
+    "select_files": "Select Files",
+    "select_folder": "Select Folder",
+    "add_files": "Add Files",
+    "remove_files": "Remove Files",
+    "clear_list": "Clear List",
+    "start_processing": "Start Processing",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "browse": "Browse",
+    "preview": "Preview",
+    "reset": "Reset"
+  },
+  "labels": {
+    "input_files": "Input Files:",
+    "output_directory": "Output Directory:",
+    "compression_quality": "Compression Quality:",
+    "image_compression": "Image Compression:",
+    "label_position": "Label Position:",
+    "font_size": "Font Size:",
+    "font_color": "Font Color:",
+    "progress": "Progress:",
+    "status": "Status:",
+    "files_processed": "Files Processed:",
+    "current_file": "Current File:"
+  },
+  "quality_levels": {
+    "screen": "Screen (Smallest File)",
+    "ebook": "E-book (Balanced)",
+    "printer": "Printer (High Quality)",
+    "prepress": "Prepress (Highest Quality)"
+  },
+  "label_positions": {
+    "header": "Header",
+    "footer": "Footer",
+    "top-left": "Top Left",
+    "top-right": "Top Right",
+    "bottom-left": "Bottom Left",
+    "bottom-right": "Bottom Right"
+  },
+  "messages": {
+    "processing_complete": "Processing Complete",
+    "processing_cancelled": "Processing Cancelled",
+    "no_files_selected": "No Files Selected",
+    "invalid_output_directory": "Invalid Output Directory",
+    "processing_error": "Processing Error",
+    "file_not_found": "File Not Found",
+    "permission_denied": "Permission Denied",
+    "disk_space_insufficient": "Insufficient Disk Space",
+    "ghostscript_not_found": "Ghostscript Not Found",
+    "dependency_missing": "Missing Dependency",
+    "success": "Successfully processed {count} files",
+    "partial_success": "Successfully processed {success} files, failed {failed}",
+    "all_failed": "All files failed to process"
+  },
+  "dialogs": {
+    "select_input_files": "Select Input Files",
+    "select_output_directory": "Select Output Directory",
+    "processing_progress": "Processing Progress",
+    "error": "Error",
+    "warning": "Warning",
+    "information": "Information",
+    "confirmation": "Confirmation"
+  },
+  "file_types": {
+    "word_documents": "Word Documents",
+    "pdf_documents": "PDF Documents",
+    "all_files": "All Files"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "processing": "Processing",
+    "interface": "Interface",
+    "advanced": "Advanced",
+    "language_selection": "Language Selection:",
+    "default_directories": "Default Directories",
+    "compression_settings": "Compression Settings",
+    "labeling_settings": "Labeling Settings",
+    "window_settings": "Window Settings"
+  }
+}

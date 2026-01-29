@@ -838,6 +838,9 @@ class MainWindow:
         # Configure notebook style to add padding inside tab content area
         style = ttk.Style()
         style.configure('TNotebook.Tab', padding=[10, 5])
+        # Add tabmargins to prevent tab labels from being covered by content area shadow on macOS
+        # Format: [left, top, right, bottom] - increase bottom margin to create space between tabs and content
+        style.configure('TNotebook', tabmargins=[2, 5, 2, 20])
 
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill='both', expand=True, padx=5, pady=5)

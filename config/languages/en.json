@@ -93,5 +93,20 @@
     "compression_settings": "Compression Settings",
     "labeling_settings": "Labeling Settings",
     "window_settings": "Window Settings"
+  },
+  "table_headers": {
+    "filename": "Filename",
+    "size": "Size",
+    "status": "Status"
+  },
+  "groups": {
+    "conversion_options": "Conversion Options",
+    "compression_options": "Compression Options",
+    "label_options": "Label Options",
+    "preview": "Preview"
+  },
+  "options": {
+    "quality": "Quality:",
+    "dpi": "DPI:"
   }
 }

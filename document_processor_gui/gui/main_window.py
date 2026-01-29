@@ -228,26 +228,28 @@ class ConversionTab(BaseProcessingTab):
     def _setup_conversion_options(self):
         """Setup conversion-specific options."""
         # Options frame
-        options_frame = ttk.LabelFrame(self, text="Conversion Options", padding=10)
-        options_frame.grid(row=4, column=0, sticky='ew', padx=10, pady=5)
+        self.options_frame = ttk.LabelFrame(self, text=self._get_text('groups.conversion_options'), padding=10)
+        self.options_frame.grid(row=4, column=0, sticky='ew', padx=10, pady=5)
 
         # Image compression checkbox
         self.image_compression_var = tk.BooleanVar(
             value=self.app_controller.get_settings().get('image_compression_enabled', False)
         )
-        ttk.Checkbutton(
-            options_frame,
+        self.image_compression_checkbox = ttk.Checkbutton(
+            self.options_frame,
             text=self._get_text('labels.image_compression'),
             variable=self.image_compression_var
-        ).pack(side='left', padx=5)
+        )
+        self.image_compression_checkbox.pack(side='left', padx=5)
 
         # Image quality
-        ttk.Label(options_frame, text="Quality:").pack(side='left', padx=(20, 5))
+        self.quality_label = ttk.Label(self.options_frame, text=self._get_text('options.quality'))
+        self.quality_label.pack(side='left', padx=(20, 5))
         self.quality_var = tk.IntVar(
             value=self.app_controller.get_settings().get('image_quality', 75)
         )
         ttk.Spinbox(
-            options_frame,
+            self.options_frame,
             from_=1, to=100,
             textvariable=self.quality_var,
             width=5
@@ -289,6 +291,13 @@ class ConversionTab(BaseProcessingTab):
         # Start conversion
         self.app_controller.start_conversion(files, output_dir, settings)
 
+    def update_translations(self):
+        """Update all UI text with current language."""
+        super().update_translations()
+        self.options_frame.configure(text=self._get_text('groups.conversion_options'))
+        self.image_compression_checkbox.configure(text=self._get_text('labels.image_compression'))
+        self.quality_label.configure(text=self._get_text('options.quality'))
+
 
 class CompressionTab(BaseProcessingTab):
     """Tab for PDF compression."""
@@ -302,16 +311,17 @@ class CompressionTab(BaseProcessingTab):
     def _setup_compression_options(self):
         """Setup compression-specific options."""
         # Options frame
-        options_frame = ttk.LabelFrame(self, text="Compression Options", padding=10)
-        options_frame.grid(row=4, column=0, sticky='ew', padx=10, pady=5)
+        self.options_frame = ttk.LabelFrame(self, text=self._get_text('groups.compression_options'), padding=10)
+        self.options_frame.grid(row=4, column=0, sticky='ew', padx=10, pady=5)
 
         # Quality preset
-        ttk.Label(options_frame, text=self._get_text('labels.compression_quality')).pack(side='left', padx=5)
+        self.quality_preset_label = ttk.Label(self.options_frame, text=self._get_text('labels.compression_quality'))
+        self.quality_preset_label.pack(side='left', padx=5)
         self.quality_var = tk.StringVar(
             value=self.app_controller.get_settings().get('compression_quality', 'ebook')
         )
         quality_combo = ttk.Combobox(
-            options_frame,
+            self.options_frame,
             textvariable=self.quality_var,
             values=['screen', 'ebook', 'printer', 'prepress'],
             state='readonly',
@@ -320,12 +330,13 @@ class CompressionTab(BaseProcessingTab):
         quality_combo.pack(side='left', padx=5)
 
         # DPI
-        ttk.Label(options_frame, text="DPI:").pack(side='left', padx=(20, 5))
+        self.dpi_label = ttk.Label(self.options_frame, text=self._get_text('options.dpi'))
+        self.dpi_label.pack(side='left', padx=(20, 5))
         self.dpi_var = tk.IntVar(
             value=self.app_controller.get_settings().get('target_dpi', 144)
         )
         ttk.Spinbox(
-            options_frame,
+            self.options_frame,
             from_=72, to=600,
             textvariable=self.dpi_var,
             width=5
@@ -367,6 +378,13 @@ class CompressionTab(BaseProcessingTab):
         # Start compression
         self.app_controller.start_compression(files, output_dir, settings)
 
+    def update_translations(self):
+        """Update all UI text with current language."""
+        super().update_translations()
+        self.options_frame.configure(text=self._get_text('groups.compression_options'))
+        self.quality_preset_label.configure(text=self._get_text('labels.compression_quality'))
+        self.dpi_label.configure(text=self._get_text('options.dpi'))
+
 
 class LabelingTab(BaseProcessingTab):
     """Tab for PDF labeling."""
@@ -383,19 +401,19 @@ class LabelingTab(BaseProcessingTab):
         self.grid_columnconfigure(1, weight=1)
 
         # Options frame
-        options_frame = ttk.LabelFrame(self, text="Label Options", padding=10)
-        options_frame.grid(row=4, column=0, sticky='ew', padx=10, pady=5)
+        self.options_frame = ttk.LabelFrame(self, text=self._get_text('groups.label_options'), padding=10)
+        self.options_frame.grid(row=4, column=0, sticky='ew', padx=10, pady=5)
 
         settings = self.app_controller.get_settings()
 
         # Position
-        ttk.Label(options_frame, text=self._get_text('labels.label_position')).grid(
+        ttk.Label(self.options_frame, text=self._get_text('labels.label_position')).grid(
             row=0, column=0, sticky='w', padx=5, pady=2
         )
         self.position_var = tk.StringVar(value=settings.get('label_position', 'footer'))
         positions = ['header', 'footer', 'top-left', 'top-right', 'bottom-left', 'bottom-right']
         ttk.Combobox(
-            options_frame,
+            self.options_frame,
             textvariable=self.position_var,
             values=positions,
             state='readonly',
@@ -403,23 +421,23 @@ class LabelingTab(BaseProcessingTab):
         ).grid(row=0, column=1, sticky='w', padx=5, pady=2)
 
         # Font size
-        ttk.Label(options_frame, text=self._get_text('labels.font_size')).grid(
+        ttk.Label(self.options_frame, text=self._get_text('labels.font_size')).grid(
             row=1, column=0, sticky='w', padx=5, pady=2
         )
         self.font_size_var = tk.IntVar(value=settings.get('label_font_size', 10))
         ttk.Spinbox(
-            options_frame,
+            self.options_frame,
             from_=6, to=72,
             textvariable=self.font_size_var,
             width=5
         ).grid(row=1, column=1, sticky='w', padx=5, pady=2)
 
         # Font color
-        ttk.Label(options_frame, text=self._get_text('labels.font_color')).grid(
+        ttk.Label(self.options_frame, text=self._get_text('labels.font_color')).grid(
             row=2, column=0, sticky='w', padx=5, pady=2
         )
         self.color_var = tk.StringVar(value=settings.get('label_font_color', '#FF0000'))
-        color_frame = ttk.Frame(options_frame)
+        color_frame = ttk.Frame(self.options_frame)
         color_frame.grid(row=2, column=1, sticky='w', padx=5, pady=2)
         ttk.Entry(color_frame, textvariable=self.color_var, width=10).pack(side='left')
         self.color_preview = tk.Label(color_frame, width=3, bg=self.color_var.get())
@@ -427,16 +445,16 @@ class LabelingTab(BaseProcessingTab):
 
         # Preview button
         ttk.Button(
-            options_frame,
+            self.options_frame,
             text=self._get_text('buttons.preview'),
             command=self._show_preview
         ).grid(row=3, column=0, columnspan=2, pady=10)
 
         # Preview panel (on the right side)
-        preview_frame = ttk.LabelFrame(self, text="Preview", padding=5)
-        preview_frame.grid(row=0, column=1, rowspan=5, sticky='nsew', padx=10, pady=5)
+        self.preview_frame = ttk.LabelFrame(self, text=self._get_text('groups.preview'), padding=5)
+        self.preview_frame.grid(row=0, column=1, rowspan=5, sticky='nsew', padx=10, pady=5)
 
-        self.preview_panel = PreviewPanel(preview_frame, preview_size=300)
+        self.preview_panel = PreviewPanel(self.preview_frame, preview_size=300)
         self.preview_panel.pack(fill='both', expand=True)
 
     def _show_preview(self):
@@ -497,6 +515,12 @@ class LabelingTab(BaseProcessingTab):
 
         # Start labeling
         self.app_controller.start_labeling(files, output_dir, settings)
+
+    def update_translations(self):
+        """Update all UI text with current language."""
+        super().update_translations()
+        self.options_frame.configure(text=self._get_text('groups.label_options'))
+        self.preview_frame.configure(text=self._get_text('groups.preview'))
 
 
 class MainWindow:

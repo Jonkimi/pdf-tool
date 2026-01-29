@@ -93,5 +93,20 @@
     "compression_settings": "压缩设置",
     "labeling_settings": "标注设置",
     "window_settings": "窗口设置"
+  },
+  "table_headers": {
+    "filename": "文件名",
+    "size": "大小",
+    "status": "状态"
+  },
+  "groups": {
+    "conversion_options": "转换选项",
+    "compression_options": "压缩选项",
+    "label_options": "标签选项",
+    "preview": "预览"
+  },
+  "options": {
+    "quality": "质量:",
+    "dpi": "DPI:"
   }
 }

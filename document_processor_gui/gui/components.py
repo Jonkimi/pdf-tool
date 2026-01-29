@@ -177,15 +177,15 @@ class FileListWidget(ttk.Frame):
         )
 
         # Configure columns
-        self.tree.heading('filename', text='Filename')
+        self.tree.heading('filename', text=self._get_text('table_headers.filename'))
         self.tree.column('filename', width=300, minwidth=150)
 
         if self.show_size:
-            self.tree.heading('size', text='Size')
+            self.tree.heading('size', text=self._get_text('table_headers.size'))
             self.tree.column('size', width=80, minwidth=60)
 
         if self.show_status:
-            self.tree.heading('status', text='Status')
+            self.tree.heading('status', text=self._get_text('table_headers.status'))
             self.tree.column('status', width=100, minwidth=80)
 
         # Scrollbars
@@ -211,11 +211,11 @@ class FileListWidget(ttk.Frame):
         """Setup right-click context menu."""
         self.context_menu = tk.Menu(self, tearoff=0)
         self.context_menu.add_command(
-            label="Remove Selected",
+            label=self._get_text('buttons.remove_files'),
             command=self.remove_selected
         )
         self.context_menu.add_command(
-            label="Clear All",
+            label=self._get_text('buttons.clear_list'),
             command=self.clear
         )
 
@@ -344,11 +344,11 @@ class FileListWidget(ttk.Frame):
     def update_translations(self) -> None:
         """Update UI text with current language."""
         # Update column headers
-        self.tree.heading('filename', text=self._get_text('labels.input_files').rstrip(':'))
+        self.tree.heading('filename', text=self._get_text('table_headers.filename'))
         if self.show_size:
-            self.tree.heading('size', text='Size')
+            self.tree.heading('size', text=self._get_text('table_headers.size'))
         if self.show_status:
-            self.tree.heading('status', text=self._get_text('labels.status').rstrip(':'))
+            self.tree.heading('status', text=self._get_text('table_headers.status'))
 
         # Update context menu
         self.context_menu.entryconfigure(0, label=self._get_text('buttons.remove_files'))

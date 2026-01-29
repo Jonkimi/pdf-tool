@@ -1,6 +1,4 @@
 import sys
-import shutil
-import platform
 import subprocess
 import logging
 from pathlib import Path
@@ -21,23 +19,9 @@ class GhostscriptWrapper:
         if self.gs_path and Path(self.gs_path).is_file():
             return self.gs_path
 
-        system = platform.system()
-        executable = None
-        
-        if system == "Windows":
-            # Priority to command line version
-            if shutil.which("gswin64c.exe"):
-                executable = "gswin64c.exe"
-            elif shutil.which("gswin32c.exe"):
-                executable = "gswin32c.exe"
-            elif shutil.which("gswin64.exe"):
-                executable = "gswin64.exe"
-            elif shutil.which("gswin32.exe"):
-                executable = "gswin32.exe"
-        else:
-            executable = shutil.which("gs")
-            
-        return executable
+        from .ghostscript_installer import GhostscriptInstaller
+        installer = GhostscriptInstaller()
+        return installer.detect_ghostscript()
 
     def is_available(self) -> bool:
         """Check if Ghostscript is available."""

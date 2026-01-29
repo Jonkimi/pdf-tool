@@ -117,5 +117,27 @@
     "target_dpi": "目标图像分辨率（每英寸点数）。\n此参数会覆盖压缩级别预设的 DPI 值。\n数值越低文件越小，但图像质量会下降。\n推荐值：72-150 用于屏幕显示，300 用于打印。",
     "downsample_threshold": "下采样触发阈值。\n当图像分辨率超过目标 DPI 乘以此阈值时，\n才会进行下采样。例如：阈值 1.5 表示图像\n分辨率需超过目标 DPI 的 1.5 倍才会压缩。",
     "image_quality": "JPEG 图像压缩质量（1-100）。\n数值越高图像质量越好，但文件越大。\n推荐值：60-80 可获得较好的质量与大小平衡。"
+  },
+  "ghostscript": {
+    "not_found_title": "未找到 Ghostscript",
+    "not_found_message": "PDF 压缩功能需要 Ghostscript，但未在系统中检测到。",
+    "found_title": "Ghostscript 配置",
+    "found_message": "Ghostscript 安装路径：{path}",
+    "install_commands_label": "通过包管理器安装（复制以下命令到终端运行）：",
+    "homebrew_label": "Homebrew:",
+    "macports_label": "MacPorts:",
+    "open_download": "打开下载页面",
+    "manual_path_label": "或手动指定 Ghostscript 路径：",
+    "browse": "浏览",
+    "verify": "验证",
+    "skip": "跳过",
+    "close": "关闭",
+    "retry": "重新检测",
+    "dont_show_again": "不再提示",
+    "path_valid": "找到有效的 Ghostscript（版本 {version}）",
+    "path_invalid": "此路径下未找到有效的 Ghostscript",
+    "copy": "复制",
+    "detected": "成功检测到 Ghostscript！",
+    "status_not_found": "未找到"
   }
 }

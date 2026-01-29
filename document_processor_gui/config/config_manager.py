@@ -53,6 +53,7 @@ class AppConfig:
     target_dpi: int = 144
     downsample_threshold: float = 1.1
     preserve_original: bool = True
+    skip_ghostscript_check: bool = False
     
     def validate(self) -> bool:
         """Validate configuration values."""

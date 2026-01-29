@@ -727,3 +727,293 @@ class SettingsDialog(tk.Toplevel):
         """Close the dialog."""
         self.grab_release()
         self.destroy()
+
+
+class GhostscriptSetupDialog(tk.Toplevel):
+    """Dialog for Ghostscript setup when not detected."""
+
+    def __init__(self, parent: tk.Widget,
+                 language_manager: Optional["LanguageManager"] = None,
+                 app_controller: Optional[Any] = None,
+                 gs_available: bool = False,
+                 gs_path: Optional[str] = None):
+        """Initialize Ghostscript setup dialog.
+
+        Args:
+            parent: Parent window
+            language_manager: Language manager for translations
+            app_controller: Application controller for settings
+            gs_available: Whether Ghostscript is currently detected
+            gs_path: Current Ghostscript path if available
+        """
+        super().__init__(parent)
+        self.logger = logging.getLogger(__name__)
+        self.language_manager = language_manager
+        self.app_controller = app_controller
+        self.gs_available = gs_available
+        self.current_gs_path = gs_path
+        self.result = "skipped"
+
+        # Import installer
+        from ..backend.ghostscript_installer import GhostscriptInstaller
+        self.installer = GhostscriptInstaller()
+
+        # Set title based on current state
+        if self.gs_available:
+            self.title(self._get_text('ghostscript.found_title'))
+        else:
+            self.title(self._get_text('ghostscript.not_found_title'))
+        self.transient(parent)
+        self.grab_set()
+
+        self._path_var = tk.StringVar()
+        self._dont_show_var = tk.BooleanVar(value=False)
+        self._status_label: Optional[ttk.Label] = None
+
+        self._setup_ui()
+        self._center_on_parent(parent)
+
+    def _get_text(self, key: str, **kwargs) -> str:
+        """Get translated text."""
+        if self.language_manager:
+            return self.language_manager.get_text(key, **kwargs)
+        return key
+
+    def _setup_ui(self):
+        """Setup dialog UI."""
+        self.resizable(False, False)
+
+        main_frame = ttk.Frame(self, padding=20)
+        main_frame.pack(fill='both', expand=True)
+
+        # Title and message - based on current state
+        if self.gs_available:
+            title_text = self._get_text('ghostscript.found_title')
+            msg_text = self._get_text('ghostscript.found_message', path=self.current_gs_path or '')
+        else:
+            title_text = self._get_text('ghostscript.not_found_title')
+            msg_text = self._get_text('ghostscript.not_found_message')
+
+        title_label = ttk.Label(
+            main_frame,
+            text=title_text,
+            font=('TkDefaultFont', 12, 'bold')
+        )
+        title_label.pack(anchor='w', pady=(0, 5))
+
+        msg_label = ttk.Label(
+            main_frame,
+            text=msg_text,
+            wraplength=550
+        )
+        msg_label.pack(anchor='w', pady=(0, 15))
+
+        # Platform-specific section - only show when GS is not found
+        if not self.gs_available:
+            platform_info = self.installer.get_platform_info()
+            self._setup_platform_section(main_frame, platform_info)
+
+        # Separator
+        ttk.Separator(main_frame, orient='horizontal').pack(fill='x', pady=15)
+
+        # Manual configuration section
+        manual_label = ttk.Label(
+            main_frame,
+            text=self._get_text('ghostscript.manual_path_label')
+        )
+        manual_label.pack(anchor='w', pady=(0, 5))
+
+        # Pre-fill current path if GS is available
+        if self.gs_available and self.current_gs_path:
+            self._path_var.set(self.current_gs_path)
+
+        path_frame = ttk.Frame(main_frame)
+        path_frame.pack(fill='x', pady=(0, 5))
+
+        path_entry = ttk.Entry(path_frame, textvariable=self._path_var, width=45)
+        path_entry.pack(side='left', fill='x', expand=True)
+
+        browse_btn = ttk.Button(
+            path_frame,
+            text=self._get_text('ghostscript.browse'),
+            command=self._browse_path,
+            width=8
+        )
+        browse_btn.pack(side='left', padx=(5, 0))
+
+        verify_btn = ttk.Button(
+            path_frame,
+            text=self._get_text('ghostscript.verify'),
+            command=self._verify_path,
+            width=8
+        )
+        verify_btn.pack(side='left', padx=(5, 0))
+
+        # Status label for verification result
+        self._status_label = ttk.Label(main_frame, text="")
+        self._status_label.pack(anchor='w', pady=(5, 10))
+
+        # Don't show again checkbox - only show when GS is not found
+        if not self.gs_available:
+            dont_show_check = ttk.Checkbutton(
+                main_frame,
+                text=self._get_text('ghostscript.dont_show_again'),
+                variable=self._dont_show_var
+            )
+            dont_show_check.pack(anchor='w', pady=(5, 15))
+
+        # Button frame
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill='x')
+
+        # Retry button - only show when GS is not found
+        if not self.gs_available:
+            retry_btn = ttk.Button(
+                button_frame,
+                text=self._get_text('ghostscript.retry'),
+                command=self._retry_detection
+            )
+            retry_btn.pack(side='left')
+
+        # Close/Skip button
+        close_btn = ttk.Button(
+            button_frame,
+            text=self._get_text('ghostscript.close') if self.gs_available else self._get_text('ghostscript.skip'),
+            command=self._skip
+        )
+        close_btn.pack(side='right')
+
+    def _setup_platform_section(self, parent: ttk.Frame, platform_info: dict):
+        """Setup platform-specific UI section."""
+        platform_type = platform_info.get('platform', 'linux')
+
+        if platform_type == 'macos':
+            # macOS: show copy-able commands
+            cmd_label = ttk.Label(
+                parent,
+                text=self._get_text('ghostscript.install_commands_label')
+            )
+            cmd_label.pack(anchor='w', pady=(0, 5))
+
+            commands = platform_info.get('install_commands', {})
+            for label_key, cmd in [
+                ('ghostscript.homebrew_label', commands.get('homebrew', '')),
+                ('ghostscript.macports_label', commands.get('macports', ''))
+            ]:
+                if cmd:
+                    self._create_command_row(parent, self._get_text(label_key), cmd)
+        else:
+            # Windows/Linux: download button
+            download_btn = ttk.Button(
+                parent,
+                text=self._get_text('ghostscript.open_download'),
+                command=self._open_download
+            )
+            download_btn.pack(anchor='w', pady=5)
+
+    def _create_command_row(self, parent: ttk.Frame, label: str, command: str):
+        """Create a row with label, command entry, and copy button."""
+        row_frame = ttk.Frame(parent)
+        row_frame.pack(fill='x', pady=2)
+
+        ttk.Label(row_frame, text=label, width=12).pack(side='left')
+
+        cmd_var = tk.StringVar(value=command)
+        cmd_entry = ttk.Entry(row_frame, textvariable=cmd_var, state='readonly', width=45)
+        cmd_entry.pack(side='left', padx=(5, 0))
+
+        copy_btn = ttk.Button(
+            row_frame,
+            text=self._get_text('ghostscript.copy'),
+            command=lambda: self._copy_to_clipboard(command),
+            width=6
+        )
+        copy_btn.pack(side='left', padx=(5, 0))
+
+    def _copy_to_clipboard(self, text: str):
+        """Copy text to clipboard."""
+        self.clipboard_clear()
+        self.clipboard_append(text)
+
+    def _open_download(self):
+        """Open Ghostscript download page."""
+        self.installer.open_download_page()
+
+    def _browse_path(self):
+        """Browse for Ghostscript executable."""
+        from tkinter import filedialog
+        filepath = filedialog.askopenfilename(parent=self)
+        if filepath:
+            self._path_var.set(filepath)
+
+    def _verify_path(self):
+        """Verify the specified path."""
+        path = self._path_var.get().strip()
+        if not path:
+            return
+
+        version = self.installer.verify_path(path)
+        if version:
+            self._status_label.configure(
+                text=self._get_text('ghostscript.path_valid', version=version),
+                foreground='green'
+            )
+            # Save and close
+            self._save_path(path)
+            self.result = "configured"
+            self.close()
+        else:
+            self._status_label.configure(
+                text=self._get_text('ghostscript.path_invalid'),
+                foreground='red'
+            )
+
+    def _retry_detection(self):
+        """Retry auto-detection."""
+        gs_path = self.installer.detect_ghostscript()
+        if gs_path:
+            self._status_label.configure(
+                text=self._get_text('ghostscript.detected'),
+                foreground='green'
+            )
+            self._save_path(gs_path)
+            self.result = "configured"
+            self.after(1000, self.close)
+        else:
+            self._status_label.configure(
+                text=self._get_text('ghostscript.path_invalid'),
+                foreground='red'
+            )
+
+    def _save_path(self, path: str):
+        """Save the Ghostscript path to config."""
+        if self.app_controller:
+            self.app_controller.update_settings(ghostscript_path=path)
+            self.app_controller.refresh_ghostscript(path)
+
+    def _skip(self):
+        """Skip setup and optionally remember choice."""
+        if self._dont_show_var.get() and self.app_controller:
+            self.app_controller.update_settings(skip_ghostscript_check=True)
+        self.result = "skipped"
+        self.close()
+
+    def _center_on_parent(self, parent: tk.Widget):
+        """Center dialog on parent window."""
+        self.update_idletasks()
+        width = 600
+        height = 400
+        self.geometry(f"{width}x{height}")
+
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        x = parent_x + (parent_width - width) // 2
+        y = parent_y + (parent_height - height) // 2
+        self.geometry(f"{width}x{height}+{x}+{y}")
+
+    def close(self) -> None:
+        """Close the dialog."""
+        self.grab_release()
+        self.destroy()

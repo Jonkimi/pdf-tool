@@ -405,6 +405,26 @@ class ApplicationController:
 
         return status
 
+    def check_and_setup_ghostscript(self) -> bool:
+        """Check if Ghostscript is available.
+
+        Returns:
+            bool: True if Ghostscript is available
+        """
+        self._ensure_backends_initialized()
+        return self._gs_wrapper.is_available()
+
+    def refresh_ghostscript(self, gs_path: Optional[str] = None) -> None:
+        """Re-initialize Ghostscript wrapper after install or path change.
+
+        Args:
+            gs_path: Optional explicit path to set
+        """
+        if gs_path:
+            self.update_settings(ghostscript_path=gs_path)
+        # Force re-initialization on next use
+        self._gs_wrapper = None
+
     def get_text(self, key: str, **kwargs) -> str:
         """Get localized text.
 

@@ -349,6 +349,19 @@ class CompressionTab(BaseProcessingTab):
 
     def _start_processing(self):
         """Start PDF compression."""
+        # Check Ghostscript availability before processing
+        if not self.app_controller.check_and_setup_ghostscript():
+            from .dialogs import GhostscriptSetupDialog
+            dialog = GhostscriptSetupDialog(
+                self.winfo_toplevel(),
+                language_manager=self.language_manager,
+                app_controller=self.app_controller
+            )
+            self.winfo_toplevel().wait_window(dialog)
+            # Re-check after dialog closes
+            if not self.app_controller.check_and_setup_ghostscript():
+                return  # User skipped, abort compression
+
         files = self.file_list.get_files()
         if not files:
             ErrorDialog(self.language_manager).show_warning(
@@ -557,6 +570,7 @@ class MainWindow:
 
         self._setup_window()
         self._setup_menu()
+        self._setup_status_bar()
         self._setup_tabs()
 
         # Restore window position/size
@@ -564,6 +578,27 @@ class MainWindow:
 
         # Handle close
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+        # Schedule Ghostscript check after window is displayed
+        self.root.after(500, self._check_ghostscript_on_startup)
+
+    def _check_ghostscript_on_startup(self):
+        """Check for Ghostscript availability at startup."""
+        settings = self.app_controller.get_settings()
+        if settings.get('skip_ghostscript_check', False):
+            return
+        if not self.app_controller.check_and_setup_ghostscript():
+            self._show_ghostscript_setup_dialog()
+
+    def _show_ghostscript_setup_dialog(self):
+        """Show Ghostscript setup dialog."""
+        from .dialogs import GhostscriptSetupDialog
+        dialog = GhostscriptSetupDialog(
+            self.root,
+            language_manager=self.language_manager,
+            app_controller=self.app_controller
+        )
+        self.root.wait_window(dialog)
 
     def _get_text(self, key: str, **kwargs) -> str:
         """Get translated text."""
@@ -609,6 +644,105 @@ class MainWindow:
         )
 
         self.menubar = menubar
+
+    def _setup_status_bar(self):
+        """Setup top status bar with Ghostscript indicator."""
+        status_frame = ttk.Frame(self.root)
+        status_frame.pack(fill='x', padx=5, pady=(5, 0))
+
+        # Ghostscript status indicator (right side)
+        self._gs_status_frame = ttk.Frame(status_frame)
+        self._gs_status_frame.pack(side='right')
+
+        self._gs_indicator = tk.Label(
+            self._gs_status_frame,
+            text="●",
+            font=('TkDefaultFont', 12),
+            cursor="hand2"
+        )
+        self._gs_indicator.pack(side='left')
+
+        self._gs_label = ttk.Label(
+            self._gs_status_frame,
+            text="GS",
+            cursor="hand2"
+        )
+        self._gs_label.pack(side='left', padx=(2, 0))
+
+        # Bind click to open setup dialog
+        self._gs_indicator.bind("<Button-1>", lambda e: self._on_gs_indicator_click())
+        self._gs_label.bind("<Button-1>", lambda e: self._on_gs_indicator_click())
+
+        # Update indicator state
+        self._update_gs_indicator()
+
+    def _on_gs_indicator_click(self):
+        """Handle click on Ghostscript indicator."""
+        # Get current state to pass to dialog
+        gs_available = self.app_controller.check_and_setup_ghostscript()
+        gs_path = None
+        if gs_available:
+            self.app_controller._ensure_backends_initialized()
+            gs_path = self.app_controller._gs_wrapper.gs_path
+
+        from .dialogs import GhostscriptSetupDialog
+        dialog = GhostscriptSetupDialog(
+            self.root,
+            language_manager=self.language_manager,
+            app_controller=self.app_controller,
+            gs_available=gs_available,
+            gs_path=gs_path
+        )
+        self.root.wait_window(dialog)
+        self._update_gs_indicator()
+
+    def _update_gs_indicator(self):
+        """Update Ghostscript status indicator."""
+        gs_available = self.app_controller.check_and_setup_ghostscript()
+
+        if gs_available:
+            self._gs_indicator.configure(foreground='green')
+            # Get path from wrapper
+            self.app_controller._ensure_backends_initialized()
+            gs_path = self.app_controller._gs_wrapper.gs_path
+            tooltip_text = gs_path
+        else:
+            self._gs_indicator.configure(foreground='red')
+            tooltip_text = self._get_text('ghostscript.status_not_found')
+
+        # Set tooltip
+        self._set_tooltip(self._gs_status_frame, tooltip_text)
+
+    def _set_tooltip(self, widget, text):
+        """Set tooltip for widget."""
+        # Remove existing bindings
+        widget.unbind("<Enter>")
+        widget.unbind("<Leave>")
+
+        def show_tooltip(event):
+            if hasattr(widget, '_tooltip') and widget._tooltip:
+                return
+            tooltip = tk.Toplevel(widget)
+            tooltip.wm_overrideredirect(True)
+            tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
+            label = ttk.Label(
+                tooltip,
+                text=text,
+                background="#ffffe0",
+                relief='solid',
+                borderwidth=1,
+                padding=5
+            )
+            label.pack()
+            widget._tooltip = tooltip
+
+        def hide_tooltip(event):
+            if hasattr(widget, '_tooltip') and widget._tooltip:
+                widget._tooltip.destroy()
+                widget._tooltip = None
+
+        widget.bind("<Enter>", show_tooltip)
+        widget.bind("<Leave>", hide_tooltip)
 
     def _setup_tabs(self):
         """Setup tabbed interface."""

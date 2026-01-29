@@ -117,5 +117,27 @@
     "target_dpi": "Target image resolution (dots per inch).\nThis parameter overrides the DPI value from the compression level preset.\nLower values produce smaller files but reduce image quality.\nRecommended: 72-150 for screen, 300 for print.",
     "downsample_threshold": "Downsampling trigger threshold.\nImages are only downsampled when their resolution\nexceeds target DPI multiplied by this threshold.\nE.g., 1.5 means images must exceed 1.5x target DPI.",
     "image_quality": "JPEG image compression quality (1-100).\nHigher values mean better quality but larger files.\nRecommended: 60-80 for good quality/size balance."
+  },
+  "ghostscript": {
+    "not_found_title": "Ghostscript Not Found",
+    "not_found_message": "Ghostscript is required for PDF compression but was not detected on your system.",
+    "found_title": "Ghostscript Configuration",
+    "found_message": "Ghostscript is installed at: {path}",
+    "install_commands_label": "Install via package manager (copy and run in Terminal):",
+    "homebrew_label": "Homebrew:",
+    "macports_label": "MacPorts:",
+    "open_download": "Open Download Page",
+    "manual_path_label": "Or specify Ghostscript path manually:",
+    "browse": "Browse",
+    "verify": "Verify",
+    "skip": "Skip",
+    "close": "Close",
+    "retry": "Retry Detection",
+    "dont_show_again": "Don't show this again",
+    "path_valid": "Valid Ghostscript found (version {version})",
+    "path_invalid": "No valid Ghostscript executable at this path",
+    "copy": "Copy",
+    "detected": "Ghostscript detected successfully!",
+    "status_not_found": "Not Found"
   }
 }

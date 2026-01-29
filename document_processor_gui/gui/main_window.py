@@ -158,11 +158,16 @@ class BaseProcessingTab(ttk.Frame):
         if self._processing_complete:
             return
         if self._progress_dialog:
-            self._progress_dialog.update_progress(current, total, filename)
+            # Set file status BEFORE updating progress dialog, because
+            # ProgressDialog.update_progress() calls self.update() which
+            # processes pending events and may trigger _show_completion_ui,
+            # which would set statuses to "Done". If we set "Processing..."
+            # after that, it would overwrite the "Done" status.
             self.file_list.set_file_status(
                 self._get_file_by_name(filename) or filename,
                 self._get_text('messages.status_messages.processing')
             )
+            self._progress_dialog.update_progress(current, total, filename)
 
     def _get_file_by_name(self, filename: str) -> Optional[str]:
         """Find full path by filename."""

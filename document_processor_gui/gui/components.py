@@ -411,7 +411,7 @@ class FileListWidget(ttk.Frame):
                 values.append("N/A")
 
         if self.show_status:
-            status = self._file_status.get(file_path, "Pending")
+            status = self._file_status.get(file_path, self._get_text('messages.status_messages.pending'))
             values.append(status)
 
         self.tree.insert('', 'end', iid=file_path, values=values)

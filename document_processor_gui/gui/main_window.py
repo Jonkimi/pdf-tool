@@ -157,7 +157,7 @@ class BaseProcessingTab(ttk.Frame):
             self._progress_dialog.update_progress(current, total, filename)
             self.file_list.set_file_status(
                 self._get_file_by_name(filename) or filename,
-                "Processing..."
+                self._get_text('messages.status_messages.processing')
             )
 
     def _get_file_by_name(self, filename: str) -> Optional[str]:
@@ -180,7 +180,7 @@ class BaseProcessingTab(ttk.Frame):
 
         # Update file statuses
         for result in results.results:
-            status = "Done" if result.success else "Failed"
+            status = self._get_text('messages.status_messages.done') if result.success else self._get_text('messages.status_messages.failed')
             self.file_list.set_file_status(result.input_file, status)
 
         # Show results dialog

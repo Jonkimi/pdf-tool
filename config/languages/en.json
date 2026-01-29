@@ -67,7 +67,13 @@
     "dependency_missing": "Missing Dependency",
     "success": "Successfully processed {count} files",
     "partial_success": "Successfully processed {success} files, failed {failed}",
-    "all_failed": "All files failed to process"
+    "all_failed": "All files failed to process",
+    "status_messages": {
+      "pending": "Pending",
+      "done": "Done",
+      "failed": "Failed",
+      "processing": "Processing..."
+    }
   },
   "dialogs": {
     "select_input_files": "Select Input Files",

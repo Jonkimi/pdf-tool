@@ -835,6 +835,10 @@ class MainWindow:
 
     def _setup_tabs(self):
         """Setup tabbed interface."""
+        # Configure notebook style to add padding inside tab content area
+        style = ttk.Style()
+        style.configure('TNotebook.Tab', padding=[10, 5])
+
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill='both', expand=True, padx=5, pady=5)
 
@@ -846,7 +850,8 @@ class MainWindow:
         )
         self.notebook.add(
             self.conversion_tab,
-            text=self._get_text('tabs.conversion')
+            text=self._get_text('tabs.conversion'),
+            padding=(0, 10, 0, 0)
         )
 
         # Compression tab
@@ -857,7 +862,8 @@ class MainWindow:
         )
         self.notebook.add(
             self.compression_tab,
-            text=self._get_text('tabs.compression')
+            text=self._get_text('tabs.compression'),
+            padding=(0, 10, 0, 0)
         )
 
         # Labeling tab
@@ -868,7 +874,8 @@ class MainWindow:
         )
         self.notebook.add(
             self.labeling_tab,
-            text=self._get_text('tabs.labeling')
+            text=self._get_text('tabs.labeling'),
+            padding=(0, 10, 0, 0)
         )
 
     def _restore_window_geometry(self):

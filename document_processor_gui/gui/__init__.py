@@ -1,15 +1,23 @@
 """GUI components module."""
 
-from .main_window import MainWindow
-from .dialogs import ProgressDialog, ErrorDialog, SettingsDialog
-from .components import FileSelector, FileListWidget, PreviewPanel
+from .main_window import MainWindow, ConversionTab, CompressionTab, LabelingTab
+from .dialogs import ProgressDialog, ErrorDialog, SettingsDialog, ResultsDialog
+from .components import FileSelector, FileListWidget, OutputSelector, FileButtonBar
+from .preview import PreviewPanel, BeforeAfterPreview
 
 __all__ = [
-    "MainWindow", 
-    "ProgressDialog", 
-    "ErrorDialog", 
+    "MainWindow",
+    "ConversionTab",
+    "CompressionTab",
+    "LabelingTab",
+    "ProgressDialog",
+    "ErrorDialog",
     "SettingsDialog",
-    "FileSelector", 
-    "FileListWidget", 
-    "PreviewPanel"
+    "ResultsDialog",
+    "FileSelector",
+    "FileListWidget",
+    "OutputSelector",
+    "FileButtonBar",
+    "PreviewPanel",
+    "BeforeAfterPreview"
 ]

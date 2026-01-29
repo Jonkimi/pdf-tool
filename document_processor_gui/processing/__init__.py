@@ -3,11 +3,16 @@
 from .conversion_engine import ConversionEngine
 from .compression_engine import CompressionEngine
 from .labeling_engine import LabelingEngine
-from .batch_processor import BatchProcessor
+from .batch_processor import BatchProcessor, BatchConfiguration, BatchSummary
+from .models import ProcessingResult, ProcessingResults
 
 __all__ = [
     "ConversionEngine",
-    "CompressionEngine", 
+    "CompressionEngine",
     "LabelingEngine",
-    "BatchProcessor"
+    "BatchProcessor",
+    "BatchConfiguration",
+    "BatchSummary",
+    "ProcessingResult",
+    "ProcessingResults"
 ]

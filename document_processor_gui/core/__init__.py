@@ -4,10 +4,14 @@ from .application_controller import ApplicationController
 from .error_handler import ErrorHandler
 from .language_manager import LanguageManager
 from .exceptions import DocumentProcessorError
+from .validation import InputValidator, ValidationResult, ValidationIssue
 
 __all__ = [
     "ApplicationController",
-    "ErrorHandler", 
+    "ErrorHandler",
     "LanguageManager",
-    "DocumentProcessorError"
+    "DocumentProcessorError",
+    "InputValidator",
+    "ValidationResult",
+    "ValidationIssue"
 ]
